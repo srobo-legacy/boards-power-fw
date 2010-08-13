@@ -4,7 +4,7 @@ CC := msp430-gcc
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3
 LDFLAGS :=
 
-H_FILES =
+H_FILES = leds.h
 C_FILES = main.c
 
 power: ${H_FILES} ${C_FILES}
