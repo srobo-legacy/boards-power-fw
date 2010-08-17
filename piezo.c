@@ -29,6 +29,17 @@ void piezo_play(void) {
 }
 
 void piezo_beep(void) {
+	int i, j;
+	for (i = 0; i < 200; i++) {
+		P1OUT |= PIEZO_PIN;
+		for (j=0; j<100; j++) {
+			nop();
+		}
+		P1OUT &= ~PIEZO_PIN;
+		for (j=0; j<100; j++) {
+			nop();
+		}
+	}
 }
 
 void piezo_beep_pattern(char *pattern) {
