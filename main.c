@@ -32,6 +32,8 @@ int main(void) {
 
 	init();
 	led_set(0, 1);
+	piezo_beep();
+	power_motor_enable();
 
 	while(1);
 }
