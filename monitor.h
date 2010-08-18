@@ -15,30 +15,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include <io.h>
-#include <signal.h>
-#include "leds.h"
-#include "piezo.h"
-#include "power.h"
-#include "monitor.h"
+#ifndef __MONITOR_H
+#define __MONITOR_H
+/* Functions for monitoring power rails and battery current */
 
-void init(void) {
-	leds_init();
-	piezo_init();
-	power_init();
-	monitor_init();
+void monitor_init(void);
 
-	eint();
-}
-
-int main(void) {
-	/* Disable watchdog timer */
-	WDTCTL = WDTHOLD | WDTPW;
-
-	init();
-	led_set(0, 1);
-	piezo_beep();
-	power_motor_enable();
-
-	while(1);
-}
+#endif /* __MONITOR_H */
