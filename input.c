@@ -16,34 +16,35 @@
 */
 
 #include <io.h>
-#include <signal.h>
-#include "leds.h"
-#include "piezo.h"
-#include "power.h"
-#include "monitor.h"
 #include "input.h"
+#include "pinint.h"
+#include "leds.h"
 
-void init(void) {
-	leds_init();
-	piezo_init();
-	power_init();
-	monitor_init();
-	input_init();
+#define BUT0 (1<<1)
+#define BUT1 (1<<3)
+#define BUT2 (1<<4)
 
-	eint();
+void but_isr(uint16_t flags);
+
+void input_init(void) {
+	pinint_conf[PININT_BUTTON].mask = (BUT0 | BUT1 | BUT2);
+	pinint_conf[PININT_BUTTON].int_cb = but_isr;
+
+	P1DIR &= ~(BUT0 | BUT1 | BUT2); /* Set to inputs */
+	P1SEL &= ~(BUT0 | BUT1 | BUT2); /* GPIO function */
+	P1IES |=  (BUT0 | BUT1 | BUT2); /* Int on High-Low transition */
+	P1IFG &= ~(BUT0 | BUT1 | BUT2); /* Clear interrupt flags */
+	P1IE  |=  (BUT0 | BUT1 | BUT2); /* Enable interrupts on those pins */
 }
 
-int main(void) {
-	/* Disable watchdog timer */
-	WDTCTL = WDTHOLD | WDTPW;
-
-	init();
-	led_set(0, 1);
-	piezo_beep();
-	power_motor_enable();
-	power_bb_enable();
-	power_bl_enable();
-
-
-	while(1);
+void but_isr(uint16_t flags) {
+	if (flags & BUT0) {
+		led_toggle(0);
+	}
+	if (flags & BUT1) {
+		led_toggle(1);
+	}
+	if (flags & BUT2) {
+		led_toggle(2);
+	}
 }

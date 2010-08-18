@@ -15,35 +15,9 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include <io.h>
-#include <signal.h>
-#include "leds.h"
-#include "piezo.h"
-#include "power.h"
-#include "monitor.h"
-#include "input.h"
+#ifndef __INPUT_H
+#define __INPUT_H
 
-void init(void) {
-	leds_init();
-	piezo_init();
-	power_init();
-	monitor_init();
-	input_init();
+void input_init(void);
 
-	eint();
-}
-
-int main(void) {
-	/* Disable watchdog timer */
-	WDTCTL = WDTHOLD | WDTPW;
-
-	init();
-	led_set(0, 1);
-	piezo_beep();
-	power_motor_enable();
-	power_bb_enable();
-	power_bl_enable();
-
-
-	while(1);
-}
+#endif /* __INPUT_H */
