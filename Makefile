@@ -4,14 +4,32 @@ CC := msp430-gcc
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3
 LDFLAGS :=
 
-H_FILES = leds.h power.h piezo.h monitor.h pinint.h input.h
-C_FILES = main.c power.c piezo.c monitor.c pinint.c input.c
+O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o
+SUBDIRS = drivers
 
-power: ${H_FILES} ${C_FILES}
-	${CC} -o $@ ${C_FILES} ${CFLAGS} ${LDFLAGS}
+LDFLAGS += -Ldrivers -ldrivers
 
-.PHONY: clean
+all: power
+
+include depend
+
+power: ${O_FILES} ${SUBDIRS}
+	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS}
+
+${SUBDIRS}:
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+
+depend: *.c
+	rm -f depend
+	for file in $^; do \
+		${CC} ${CFLAGS} -MM $$file -o - >> $@ ; \
+	done ;
+
+.PHONY: clean ${SUBDIRS}
 
 clean:
-	-rm -f power
+	-rm -f power depend *.o
+	for d in ${SUBDIRS} ; do\
+		${MAKE} -C $$d clean ; \
+	done ;
 
