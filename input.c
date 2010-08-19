@@ -103,6 +103,9 @@ void but_isr(uint16_t flags) {
 	if (flags & R0A) {
 		input_rot_fsm(0);
 	}
+	if (flags & R1A) {
+		input_rot_fsm(1);
+	}
 }
 
 static void input_rot_fsm(uint8_t n) {
