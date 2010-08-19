@@ -24,17 +24,33 @@
 #define BUT1 (1<<3)
 #define BUT2 (1<<4)
 
+#define RBUT0 (1<<(2+8)) /* On P2 so shift by 8 for flags */
+#define RBUT1 (1<<7)
+
+#define P1SIGNALS (BUT0 | BUT1 | BUT2 | RBUT1)
+#define P2SIGNALS ((RBUT0) >> 8)
+
 void but_isr(uint16_t flags);
 
 void input_init(void) {
-	pinint_conf[PININT_BUTTON].mask = (BUT0 | BUT1 | BUT2);
+	pinint_conf[PININT_BUTTON].mask =
+	        (BUT0 | BUT1 | BUT2 | RBUT0 | RBUT1);
 	pinint_conf[PININT_BUTTON].int_cb = but_isr;
 
-	P1DIR &= ~(BUT0 | BUT1 | BUT2); /* Set to inputs */
-	P1SEL &= ~(BUT0 | BUT1 | BUT2); /* GPIO function */
-	P1IES |=  (BUT0 | BUT1 | BUT2); /* Int on High-Low transition */
-	P1IFG &= ~(BUT0 | BUT1 | BUT2); /* Clear interrupt flags */
-	P1IE  |=  (BUT0 | BUT1 | BUT2); /* Enable interrupts on those pins */
+	P1DIR &= ~P1SIGNALS; /* Set to inputs */
+	P2DIR &= ~P2SIGNALS;
+
+	P1SEL &= ~P1SIGNALS; /* GPIO function */
+	P2SEL &= ~P2SIGNALS;
+
+	P1IES |=  P1SIGNALS; /* Int on High-Low transition */
+	P2IES |=  P2SIGNALS;
+
+	P1IFG &= ~P1SIGNALS; /* Clear interrupt flags */
+	P2IFG &= ~P2SIGNALS;
+
+	P1IE  |=  P1SIGNALS; /* Enable interrupts on those pins */
+	P2IE  |=  P2SIGNALS;
 }
 
 void but_isr(uint16_t flags) {
@@ -46,5 +62,11 @@ void but_isr(uint16_t flags) {
 	}
 	if (flags & BUT2) {
 		led_toggle(2);
+	}
+	if (flags & RBUT0) {
+		uled_toggle(0);
+	}
+	if (flags & RBUT1) {
+		uled_toggle(1);
 	}
 }
