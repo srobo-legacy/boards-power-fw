@@ -124,7 +124,10 @@ static void input_rot_fsm(uint8_t n) {
 			input_rot_state[n] = S_IDLE;
 		} else {
 			/* Clockwise event */
-			uled_toggle(0);
+			if (n)
+				TACCR0 -= 20;
+			else
+				TACCR1 += 1;
 			input_rot_state[n] = S_IDLE;
 		}
 		SET_RA_EDGE(n, EDGE_FALLING);
@@ -132,7 +135,10 @@ static void input_rot_fsm(uint8_t n) {
 	case S_CCW:
 		if (TEST_R_B(n)) {
 			/* Count-clockwise event */
-			uled_toggle(1);
+			if (n)
+				TACCR0 += 20;
+			else
+				TACCR1 -= 1;
 			input_rot_state[n] = S_IDLE;
 		} else {
 			/* Again must have bounced back and forth */
