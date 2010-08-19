@@ -23,6 +23,17 @@
 void piezo_init(void) {
 	P1OUT &= ~PIEZO_PIN;
 	P1DIR |= PIEZO_PIN;
+	P1SEL |= PIEZO_PIN;
+
+	TACTL = TASSEL_SMCLK   /* Source clock from 'SMCLK' */
+	      | ID_DIV8        /* Divide SMCLK by 8 */
+	      | MC_UPTO_CCR0;  /* Count up to TACCR0 */
+	      /* No interrupts */
+
+	TACCTL1 = OUTMOD_SET_RESET; /* Toggle output over a full timer cycle */
+
+	TACCR0 = 1000;
+	TACCR1 = 10;
 }
 
 void piezo_play(void) {
