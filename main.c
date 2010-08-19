@@ -17,6 +17,7 @@
 
 #include <io.h>
 #include <signal.h>
+#include "drivers/xt2.h"
 #include "leds.h"
 #include "piezo.h"
 #include "power.h"
@@ -25,6 +26,13 @@
 
 void init(void) {
 	leds_init();
+
+	/* Start crystal osc. and source MCLK from it.
+	 * LED stuck on indicates fault */
+	dbg_set(1);
+	xt2_start();
+	dbg_set(0);
+
 	piezo_init();
 	power_init();
 	monitor_init();
