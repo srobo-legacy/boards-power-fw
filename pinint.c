@@ -20,17 +20,8 @@
 #include "pinint.h"
 
 pinint_conf_t pinint_conf[PININT_NCONF];
-static inline void pinint_isr(void);
 
-interrupt (PORT1_VECTOR) p1_isr(void) {
-	pinint_isr();
-}
-
-interrupt (PORT2_VECTOR) p2_isr(void) {
-	pinint_isr();
-}
-
-static inline void pinint_isr(void) {
+static void pinint_isr(void) {
 	uint8_t i;
 	uint16_t flags = ((uint16_t)P2IFG) << 8 | P1IFG;
 
@@ -45,3 +36,10 @@ static inline void pinint_isr(void) {
 	P2IFG = 0;
 }
 
+interrupt (PORT1_VECTOR) p1_isr(void) {
+	pinint_isr();
+}
+
+interrupt (PORT2_VECTOR) p2_isr(void) {
+	pinint_isr();
+}
