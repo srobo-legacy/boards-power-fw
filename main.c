@@ -33,6 +33,9 @@ void init(void) {
 	xt2_start();
 	dbg_set(0);
 
+	/* Source SMCLK from XT2 */
+	BCSCTL2 |= SELS;
+
 	piezo_init();
 	power_init();
 	monitor_init();
