@@ -2,9 +2,10 @@ ARCH = msp430x169
 CC := msp430-gcc
 
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
+CFLAGS += -include `pwd`/config.h
 LDFLAGS :=
 
-O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o sched.o
+O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o
 SUBDIRS = drivers
 
 LDFLAGS += -Ldrivers -ldrivers
