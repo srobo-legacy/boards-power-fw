@@ -4,7 +4,7 @@ CC := msp430-gcc
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3
 LDFLAGS :=
 
-O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o
+O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o sched.o
 SUBDIRS = drivers
 
 LDFLAGS += -Ldrivers -ldrivers

@@ -15,48 +15,27 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include <io.h>
-#include <signal.h>
-#include "drivers/xt2.h"
-#include "leds.h"
-#include "piezo.h"
-#include "power.h"
-#include "monitor.h"
-#include "input.h"
-#include "sched.h"
+#ifndef __SCHED_H
+#define __SCHED_H
+#include <stdbool.h>
+#include <stdint.h>
 
-void init(void) {
-	leds_init();
+typedef struct {
+	/* Timout in milliseconds */
+	uint16_t t;
+	/* Callback to be called after timeout.
+	 * Return true to execute task again */
+	bool (*cb) (void *udata);
+	/* Pointer to user data, is passed to the callback */
+	void *udata;
+} sched_task_t;
 
-	/* Start crystal osc. and source MCLK from it.
-	 * LED stuck on indicates fault */
-	dbg_set(1);
-	xt2_start();
-	dbg_set(0);
+void sched_init(void);
 
-	/* Source SMCLK from XT2 */
-	BCSCTL2 |= SELS;
+/* Add a task to the schedule queue */
+void sched_add(sched_task_t *task);
 
-	sched_init();
-	piezo_init();
-	power_init();
-	monitor_init();
-	input_init();
+/* Remove a task from the schedule queue */
+void sched_rem(sched_task_t *task);
 
-	eint();
-}
-
-int main(void) {
-	/* Disable watchdog timer */
-	WDTCTL = WDTHOLD | WDTPW;
-
-	init();
-	led_set(0, 1);
-	piezo_beep();
-	power_motor_enable();
-	//power_bb_enable();
-	//power_bl_enable();
-
-
-	while(1);
-}
+#endif /* __SCHED_H */
