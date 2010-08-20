@@ -16,14 +16,18 @@
 */
 
 #include <io.h>
+#include "drivers/sched.h"
 #include "piezo.h"
 
 #define PIEZO_PIN (1<<2)
 
+#define PIEZO_EN() P1SEL |= PIEZO_PIN
+#define PIEZO_DIS() P1SEL &= ~PIEZO_PIN
+#define FREQ_TO_DELAY(f) (1000000UL/f)
+
 void piezo_init(void) {
 	P1OUT &= ~PIEZO_PIN;
 	P1DIR |= PIEZO_PIN;
-	P1SEL |= PIEZO_PIN;
 
 	TACTL = TASSEL_SMCLK   /* Source clock from 'SMCLK' */
 	      | ID_DIV8        /* Divide SMCLK by 8 */
@@ -39,18 +43,17 @@ void piezo_init(void) {
 void piezo_play(void) {
 }
 
+bool piezo_stop(void * p) {
+	PIEZO_DIS();
+	return false;
+}
+sched_task_t piezo_delay = {.cb = piezo_stop, .t = 10};
+
 void piezo_beep(void) {
-	int i, j;
-	for (i = 0; i < 200; i++) {
-		P1OUT |= PIEZO_PIN;
-		for (j=0; j<100; j++) {
-			nop();
-		}
-		P1OUT &= ~PIEZO_PIN;
-		for (j=0; j<100; j++) {
-			nop();
-		}
-	}
+	TACCR0 = FREQ_TO_DELAY(1000);
+	PIEZO_EN();
+	piezo_delay.t = 150;
+	sched_add(&piezo_delay);
 }
 
 void piezo_beep_pattern(char *pattern) {

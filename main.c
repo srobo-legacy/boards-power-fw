@@ -18,12 +18,12 @@
 #include <io.h>
 #include <signal.h>
 #include "drivers/xt2.h"
+#include "drivers/sched.h"
 #include "leds.h"
 #include "piezo.h"
 #include "power.h"
 #include "monitor.h"
 #include "input.h"
-#include "sched.h"
 
 void init(void) {
 	leds_init();
