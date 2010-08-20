@@ -27,6 +27,7 @@
 
 sched_task_t piezo_delay;
 bool piezo_stop_cb(void *p);
+bool piezo_play_cb(void *p);
 
 void piezo_init(void) {
 	P1OUT &= ~PIEZO_PIN;
@@ -43,9 +44,24 @@ void piezo_init(void) {
 	TACCR1 = 10;
 }
 
-void piezo_play(void) {
+void piezo_play(bool (*gen_note)(piezo_note_t *note)) {
+	piezo_delay.cb = piezo_play_cb;
+	piezo_delay.t = 10;
+	piezo_delay.udata = gen_note;
+	PIEZO_EN();
 }
 
+bool piezo_play_cb(void *p) {
+	bool (*gen_note) (piezo_note_t *n) = p;
+	piezo_note_t note;
+	if (gen_note(&note)) {
+		TACCR0 = FREQ_TO_DELAY(note.f);
+		piezo_delay.t = (note.d) * 100;
+		return true;
+	} else {
+		PIEZO_DIS();
+		return false;
+	}
 }
 
 void piezo_beep(void) {
