@@ -15,6 +15,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stddef.h>
 #include <io.h>
 #include <signal.h>
 #include "sched.h"
@@ -45,12 +46,39 @@ static const sched_regs_t regs = {
 #endif
 };
 
+typedef struct {
+	sched_task_t *task;
+	uint16_t time;
+} sched_queuetask_t;
+
+sched_queuetask_t sched_queue[SCHED_QUEUE_SIZE];
+
+#define LOOP_Q for (uint8_t i = 0; i < SCHED_QUEUE_SIZE; i++)
+
+volatile uint16_t sched_time;
+
 #if SCHED_TIMER == 1
 interrupt (TIMERB0_VECTOR) sched_timer_isr(void) {
 #else
 interrupt (TIMERA0_VECTOR) sched_timer_isr(void) {
 #endif
-	dbg_toggle();
+
+	sched_time++;
+
+	LOOP_Q {
+		if (sched_queue[i].time == sched_time &&
+		    sched_queue[i].task != NULL) {
+
+			if (sched_queue[i].task->cb(
+			             sched_queue[i].task->udata)) {
+
+				sched_queue[i].time = sched_time +
+				               sched_queue[i].task->t;
+			} else {
+				sched_rem(sched_queue[i].task);
+			}
+		}
+	}
 }
 
 void sched_init(void) {
@@ -61,7 +89,23 @@ void sched_init(void) {
 }
 
 void sched_add(sched_task_t *task) {
+	bool added = false;
+	LOOP_Q {
+		if (sched_queue[i].task == NULL) {
+			sched_queue[i].task = task;
+			sched_queue[i].time = sched_time + task->t;
+			added = true;
+			break;
+		}
+	}
+	if (!added)
+		while(1); /* No more space for tasks! */
 }
 
 void sched_rem(sched_task_t *task) {
+	LOOP_Q {
+		if (sched_queue[i].task == task) {
+			sched_queue[i].task = NULL;
+		}
+	}
 }
