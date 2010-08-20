@@ -29,6 +29,8 @@ sched_task_t piezo_delay;
 bool piezo_stop_cb(void *p);
 bool piezo_play_cb(void *p);
 
+piezo_buffer_t piezo_buffer;
+
 void piezo_init(void) {
 	P1OUT &= ~PIEZO_PIN;
 	P1DIR |= PIEZO_PIN;
@@ -44,21 +46,33 @@ void piezo_init(void) {
 	TACCR1 = 10;
 }
 
-void piezo_play(bool (*gen_note)(piezo_note_t *note)) {
+void piezo_play(bool (*gen_notes)(piezo_buffer_t *buf)) {
 	piezo_delay.cb = piezo_play_cb;
 	piezo_delay.t = 10;
-	piezo_delay.udata = gen_note;
+	piezo_delay.udata = gen_notes;
 	PIEZO_EN();
 }
 
 bool piezo_play_cb(void *p) {
-	bool (*gen_note) (piezo_note_t *n) = p;
-	piezo_note_t note;
-	if (gen_note(&note)) {
-		TACCR0 = FREQ_TO_DELAY(note.f);
-		piezo_delay.t = (note.d) * 100;
+	bool (*gen_notes) (piezo_buffer_t *n) = p;
+
+	if (piezo_buffer.in != piezo_buffer.out ||
+	                       gen_notes(&piezo_buffer)) {
+		piezo_note_t *n = &(piezo_buffer.notes[piezo_buffer.out]);
+
+		TACCR0 = FREQ_TO_DELAY(n->f);
+		piezo_delay.t = n->d;
+		TACCR1 = (1<<(n->v));
+
+		piezo_buffer.out++;
+		if (piezo_buffer.out == PIEZO_BUFFER_LEN) piezo_buffer.out = 0;
+
 		return true;
 	} else {
+		/* Make it easier to play short tunes that fit fully within
+		 * the buffer, no need to handle wrap-around */
+		piezo_buffer.out = 0;
+		piezo_buffer.in = 0;
 		PIEZO_DIS();
 		return false;
 	}

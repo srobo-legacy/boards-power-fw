@@ -12,4 +12,7 @@
 /* Size of the queue for schedule tasks */
 #define SCHED_QUEUE_SIZE 2
 
+/* Length of the piezo tune buffer, each note is 6 bytes */
+#define PIEZO_BUFFER_LEN 64
+
 #endif /* __CONFIG_H */

@@ -23,19 +23,24 @@
 typedef struct {
 	/* Frequency in Hertz */
 	uint16_t f;
-	/* Duration in 100s of milliseconds (a value of '2' is a duration
-	 * of 0.2s */
-	uint8_t d;
+	/* Duration in milliseconds */
+	uint16_t d;
 	/* Volume (0-5) */
 	uint8_t v;
 } piezo_note_t;
 
+typedef struct {
+	piezo_note_t notes[PIEZO_BUFFER_LEN];
+	uint8_t in;
+	uint8_t out;
+} piezo_buffer_t;
+
 void piezo_init(void);
 
 /* Begins playback of a tune.
- * Notes to be played will be obtained through the 'gen_note' callback.
+ * Notes to be played will be obtained through the 'gen_notes' callback.
  * It must return false when there are no more notes to play */
-void piezo_play(bool (*gen_note)(piezo_note_t *note));
+void piezo_play(bool (*gen_notes)(piezo_buffer_t *buf));
 
 /* Provides an easy way of making a 'beep' noise. Gives a 200ms beep at 1kHz
  * and a period of silence for 100ms. Blocks until finished.*/
