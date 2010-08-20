@@ -25,6 +25,9 @@
 #define PIEZO_DIS() P1SEL &= ~PIEZO_PIN
 #define FREQ_TO_DELAY(f) (1000000UL/f)
 
+sched_task_t piezo_delay;
+bool piezo_stop_cb(void *p);
+
 void piezo_init(void) {
 	P1OUT &= ~PIEZO_PIN;
 	P1DIR |= PIEZO_PIN;
@@ -43,17 +46,19 @@ void piezo_init(void) {
 void piezo_play(void) {
 }
 
-bool piezo_stop(void * p) {
-	PIEZO_DIS();
-	return false;
 }
-sched_task_t piezo_delay = {.cb = piezo_stop, .t = 10};
 
 void piezo_beep(void) {
 	TACCR0 = FREQ_TO_DELAY(1000);
 	PIEZO_EN();
+	piezo_delay.cb = piezo_stop_cb;
 	piezo_delay.t = 150;
 	sched_add(&piezo_delay);
+}
+
+bool piezo_stop_cb(void * p) {
+	PIEZO_DIS();
+	return false;
 }
 
 void piezo_beep_pattern(char *pattern) {
