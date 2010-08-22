@@ -124,6 +124,8 @@ bool piezo_play_cb(void *p) {
 }
 
 void piezo_beep(void) {
+	piezo_note_t beep = {.f=1000, .d=150, .v=5};
+	piezo_play(&beep, 1, false);
 }
 
 void piezo_beep_pattern(char *pattern) {

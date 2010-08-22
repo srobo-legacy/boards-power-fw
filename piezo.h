@@ -42,8 +42,7 @@ void piezo_init(void);
  * notification callback when the buffer is getting empty. */
 void piezo_play(piezo_note_t tune[], uint8_t len, bool notif);
 
-/* Provides an easy way of making a 'beep' noise. Gives a 200ms beep at 1kHz
- * and a period of silence for 100ms. Blocks until finished.*/
+/* Provides an easy way of making a 'beep' noise. */
 void piezo_beep(void);
 
 /* Output a string of long and short beeps, 1kHz 800ms/200ms. Blocking.
