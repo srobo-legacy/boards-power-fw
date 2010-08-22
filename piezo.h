@@ -20,6 +20,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* A variable of the following type called 'piezo_config' must be linked in */
+typedef struct {
+	/* Called when the playback buffer only has 5 notes remaining */
+	void (*buf_low) ();
+} piezo_config_t;
+
 typedef struct {
 	/* Frequency in Hertz */
 	uint16_t f;
@@ -29,18 +35,12 @@ typedef struct {
 	uint8_t v;
 } piezo_note_t;
 
-typedef struct {
-	piezo_note_t notes[PIEZO_BUFFER_LEN];
-	uint8_t in;
-	uint8_t out;
-} piezo_buffer_t;
-
 void piezo_init(void);
 
-/* Begins playback of a tune.
- * Notes to be played will be obtained through the 'gen_notes' callback.
- * It must return false when there are no more notes to play */
-void piezo_play(bool (*gen_notes)(piezo_buffer_t *buf));
+/* Copy 'tune' into the internal playback buffer and begin playing.
+ * Set 'notif' to true to enable notifications through the global
+ * notification callback when the buffer is getting empty. */
+void piezo_play(piezo_note_t tune[], uint8_t len, bool notif);
 
 /* Provides an easy way of making a 'beep' noise. Gives a 200ms beep at 1kHz
  * and a period of silence for 100ms. Blocks until finished.*/
