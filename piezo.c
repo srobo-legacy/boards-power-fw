@@ -22,8 +22,8 @@
 
 #define PIEZO_PIN (1<<2)
 
-#define PIEZO_EN() P1SEL |= PIEZO_PIN
-#define PIEZO_DIS() P1SEL &= ~PIEZO_PIN
+#define PIEZO_EN()  do { P1SEL |=  PIEZO_PIN; } while(0)
+#define PIEZO_DIS() do { P1SEL &= ~PIEZO_PIN; } while(0)
 #define FREQ_TO_DELAY(f) (1000000UL/f)
 
 typedef struct {
