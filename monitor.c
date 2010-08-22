@@ -15,17 +15,27 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdbool.h>
 #include <io.h>
 #include <signal.h>
 #include "monitor.h"
+#include "piezo.h"
+#include "pinint.h"
 
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
 #define VPUMP  (1<<2)
 #define VMOTOR (1<<3)
 
+#define field_set(x, val, mask) do { x = (x & ~mask) | val; } while(0)
+#define CDETECT (1<<7)
+#define SET_CDETECT_EDGE(e) field_set(P2IES, e ? CDETECT:0, CDETECT)
+
 uint16_t batt_voltage=0;
 uint16_t batt_current=0;
+bool charger_present = false;
+
+void monitor_cdetect_cb(uint16_t flags);
 
 interrupt (ADC12_VECTOR) adc_isr(void) {
 	uint8_t adc12v_l = ADC12IV;
@@ -40,6 +50,7 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 }
 
 void monitor_init(void) {
+	/* Init ADC stuff */
 	P6DIR &= ~(ISENSE|VSENSE|VPUMP|VMOTOR);
 	P6SEL |=  (ISENSE|VSENSE|VPUMP|VMOTOR); /* Disable digital inputs*/
 
@@ -68,5 +79,28 @@ void monitor_init(void) {
 
 	ADC12CTL0 |= ENC;
 	ADC12CTL0 |= ADC12SC;
+
+	/* Init charger detection stuff */
+	pinint_conf[PININT_CHARGER].mask = CDETECT << 8;
+	pinint_conf[PININT_CHARGER].int_cb = monitor_cdetect_cb;
+	P2DIR &= ~CDETECT;
+	P2SEL &= ~CDETECT;
+	SET_CDETECT_EDGE(IO_IESPIN_FALLING);
+	P2IFG &= ~CDETECT;
+	P2IE  |=  CDETECT;
 }
 
+piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
+piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
+
+void monitor_cdetect_cb(uint16_t flags) {
+	if (charger_present) {
+		SET_CDETECT_EDGE(IO_IESPIN_FALLING);
+		charger_present = false;
+		piezo_play(ch_out, 2, false);
+	} else {
+		SET_CDETECT_EDGE(IO_IESPIN_RISING);
+		charger_present = true;
+		piezo_play(ch_in, 2, false);
+	}
+}
