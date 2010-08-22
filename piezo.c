@@ -99,7 +99,11 @@ bool piezo_play_cb(void *p) {
 	if (piezo_buffer.in != piezo_buffer.out) {
 		piezo_note_t *n = &(piezo_buffer.notes[piezo_buffer.out]);
 
-		TACCR0 = FREQ_TO_DELAY(n->f);
+		if (n->f == 0) {
+			PIEZO_DIS();
+		} else {
+			TACCR0 = FREQ_TO_DELAY(n->f);
+		}
 		piezo_task.t = n->d;
 		TACCR1 = (1<<(n->v));
 
