@@ -85,6 +85,17 @@ void piezo_play(piezo_note_t tune[], uint8_t len, bool notif) {
 }
 
 bool piezo_play_cb(void *p) {
+	static bool internote_break = false;
+
+	if (internote_break) {
+		PIEZO_DIS();
+		piezo_task.t = 5;
+		internote_break = false;
+		return true;
+	} else {
+		PIEZO_EN();
+	}
+
 	if (piezo_buffer.in != piezo_buffer.out) {
 		piezo_note_t *n = &(piezo_buffer.notes[piezo_buffer.out]);
 
@@ -95,6 +106,7 @@ bool piezo_play_cb(void *p) {
 		piezo_buffer.out++;
 		if (piezo_buffer.out == PIEZO_BUFFER_LEN) piezo_buffer.out = 0;
 
+		internote_break = true;
 	} else {
 		PIEZO_DIS();
 		playing = false;
