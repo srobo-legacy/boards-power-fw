@@ -20,7 +20,7 @@
 #include "pinint.h"
 #include "leds.h"
 
-#define field_set(x, val, mask) do { x = (x & ~mask) | val; } while(0)
+#define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
 
 #define BUT0 (1<<1)
 #define BUT1 (1<<3)

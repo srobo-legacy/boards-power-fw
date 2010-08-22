@@ -27,7 +27,7 @@
 #define VPUMP  (1<<2)
 #define VMOTOR (1<<3)
 
-#define field_set(x, val, mask) do { x = (x & ~mask) | val; } while(0)
+#define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
 #define CDETECT (1<<7)
 #define SET_CDETECT_EDGE(e) field_set(P2IES, e ? CDETECT:0, CDETECT)
 
