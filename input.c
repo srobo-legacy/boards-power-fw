@@ -38,18 +38,16 @@
 #define P1SIGNALS (BUT0 | BUT1 | BUT2 | RBUT1 | R1A)
 #define P2SIGNALS ((RBUT0 | R0A) >> 8)
 
-#define TEST_R_B(n) (n ? P1IN & R1B : P2IN & (R0B>>8))
+#define test_rotary_b(n) (n ? P1IN & R1B : P2IN & (R0B>>8))
 
-#define EDGE_RISING 0
-#define EDGE_FALLING 1
 /* n = rotary encoder (0 or 1)
  * e = edge (0 = rising, 1 = falling) */
-#define SET_RA_EDGE(n, e) do { \
-                              if (!n) \
-                                  field_set(P2IES, e ? (R0A>>8):0, (R0A>>8)); \
-                              else \
-                                  field_set(P1IES, e ? R1A:0, R1A); \
-                          } while(0)
+#define set_rotary_edge_a(n, e) do { \
+                                    if (!n) \
+                                        field_set(P2IES, e ? (R0A>>8):0, (R0A>>8)); \
+                                    else \
+                                        field_set(P1IES, e ? R1A:0, R1A); \
+                                } while(0)
 
 typedef enum {
 	S_IDLE, /* A high */
@@ -111,15 +109,15 @@ void but_isr(uint16_t flags) {
 static void input_rot_fsm(uint8_t n) {
 	switch (input_rot_state[n]) {
 	case S_IDLE:
-		if (TEST_R_B(n)) {
+		if (test_rotary_b(n)) {
 			input_rot_state[n] = S_CW;
 		} else {
 			input_rot_state[n] = S_CCW;
 		}
-		SET_RA_EDGE(n, EDGE_RISING);
+		set_rotary_edge_a(n, IO_IESPIN_RISING);
 		break;
 	case S_CW:
-		if (TEST_R_B(n)) {
+		if (test_rotary_b(n)) {
 			/* Must have bounced back and forth */
 			input_rot_state[n] = S_IDLE;
 		} else {
@@ -130,10 +128,10 @@ static void input_rot_fsm(uint8_t n) {
 				TACCR1 += 1;
 			input_rot_state[n] = S_IDLE;
 		}
-		SET_RA_EDGE(n, EDGE_FALLING);
+		set_rotary_edge_a(n, IO_IESPIN_FALLING);
 		break;
 	case S_CCW:
-		if (TEST_R_B(n)) {
+		if (test_rotary_b(n)) {
 			/* Count-clockwise event */
 			if (n)
 				TACCR0 += 20;
@@ -144,7 +142,7 @@ static void input_rot_fsm(uint8_t n) {
 			/* Again must have bounced back and forth */
 			input_rot_state[n] = S_IDLE;
 		}
-		SET_RA_EDGE(n, EDGE_FALLING);
+		set_rotary_edge_a(n, IO_IESPIN_FALLING);
 		break;
 	}
 }
