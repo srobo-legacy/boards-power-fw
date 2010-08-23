@@ -15,6 +15,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stddef.h>
 #include <io.h>
 #include <signal.h>
 #include "drivers/xt2.h"
@@ -24,6 +25,10 @@
 #include "power.h"
 #include "monitor.h"
 #include "input.h"
+
+piezo_config_t piezo_config = {
+	.buf_low = NULL,
+};
 
 void init(void) {
 	leds_init();
