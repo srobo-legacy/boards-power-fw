@@ -1,3 +1,6 @@
 [submodule "drivers"]
 	path = drivers
 	url = ../msp/drivers
+[submodule "libsric"]
+	path = libsric
+	url = ../msp/libsric

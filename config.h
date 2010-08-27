@@ -15,4 +15,9 @@
 /* Length of the piezo tune buffer, each note is 6 bytes */
 #define PIEZO_BUFFER_LEN 64
 
+/* Whether we're the bus director
+   If 1, this causes the device to take address 1, generate and manage
+   the token. */
+#define SRIC_DIRECTOR 1
+
 #endif /* __CONFIG_H */

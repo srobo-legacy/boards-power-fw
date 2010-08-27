@@ -6,9 +6,10 @@ CFLAGS += -include `pwd`/config.h
 LDFLAGS :=
 
 O_FILES = main.o power.o piezo.o monitor.o pinint.o input.o
-SUBDIRS = drivers
+SUBDIRS = drivers libsric
 
 LDFLAGS += -Ldrivers -ldrivers
+LDFLAGS += -Llibsric -lsric
 
 all: power
 
