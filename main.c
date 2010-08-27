@@ -25,9 +25,65 @@
 #include "power.h"
 #include "monitor.h"
 #include "input.h"
+#include "drivers/usart.h"
+#include "libsric/sric.h"
+#include "libsric/hostser.h"
+#include "libsric/sric-gw.h"
 
 piezo_config_t piezo_config = {
 	.buf_low = NULL,
+};
+
+const usart_t usart_config[2] = {
+        {
+                .tx_gen_byte = sric_tx_cb,
+                .rx_byte = sric_rx_cb,
+
+		/* 115200 baud -- values from http://mspgcc.sourceforge.net/baudrate.html */
+                .br0 = 0x45,
+                .br1 = 0x00,
+		.mctl = 0xAA,
+
+                .sel_rx = &P3SEL,
+                .sel_tx = &P3SEL,
+                .sel_rx_num = 5,
+                .sel_tx_num = 4,
+        },
+
+        {
+                .tx_gen_byte = hostser_tx_cb,
+                .rx_byte = hostser_rx_cb,
+
+                /* 115200 baud -- values from http://mspgcc.sourceforge.net/baudrate.html */
+                .br0 = 0x45,
+                .br1 = 0x00,
+        	.mctl = 0xAA,
+
+                .sel_rx = &P3SEL,
+                .sel_tx = &P3SEL,
+                .sel_rx_num = 7,
+                .sel_tx_num = 6,
+        }
+};
+
+const hostser_conf_t hostser_conf = {
+        .usart_tx_start = usart_tx_start,
+        .usart_tx_start_n = 1,
+
+        /* Send received frames to the gateway */
+        .rx_cb = sric_gw_hostser_rx,
+        /* Notify the gateway when transmission is complete */
+        .tx_done_cb = sric_gw_hostser_tx_done,
+};
+
+const sric_conf_t sric_conf = {
+        .usart_tx_start = usart_tx_start,
+        .usart_rx_gate = usart_rx_gate,
+        .usart_n = 0,
+
+        /* Send received frames to the gateway */
+        .rx_cmd = sric_gw_sric_rxcmd,
+        .rx_resp = sric_gw_sric_rxresp,
 };
 
 void init(void) {
@@ -47,6 +103,12 @@ void init(void) {
 	power_init();
 	monitor_init();
 	input_init();
+
+	/* Bring the SRIC related stuff up: */
+	usart_init();
+	hostser_init();
+	sric_init();
+	sric_gw_init();
 
 	eint();
 }
