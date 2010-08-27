@@ -33,6 +33,8 @@
 
 uint16_t batt_voltage=0;
 uint16_t batt_current=0;
+uint16_t motor_voltage=0;
+uint16_t pump_voltage=0;
 bool charger_present = false;
 
 void monitor_cdetect_cb(uint16_t flags);
@@ -43,6 +45,8 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 	if (adc12v_l == 0x08) {
 		batt_current = ADC12MEM0;
 		batt_voltage = ADC12MEM1;
+		pump_voltage = ADC12MEM2;
+		motor_voltage = ADC12MEM3;
 		ADC12IFG &= ~0x02;
 	} else {
 		ADC12IFG = 0;
@@ -69,11 +73,17 @@ void monitor_init(void) {
 	          | CONSEQ_REPEAT_SEQUENCE; /* Repeat conversion of channels */
 
 	ADC12MCTL0 = SREF_1   /* V+ = Internal Ref; V- = GND */
-	         | INCH_0;  /* Channel A0, battery current */
+	           | INCH_0;  /* Channel A0, battery current */
 
-	ADC12MCTL1 = EOS      /* End of Sequence */
-	         | SREF_1   /* V+ = Internal Ref; V- = GND */
-	         | INCH_1;  /* Channel A1, battery voltage */
+	ADC12MCTL1 = SREF_1   /* V+ = Internal Ref; V- = GND */
+	           | INCH_1;  /* Channel A1, battery voltage */
+
+	ADC12MCTL2 = SREF_1   /* V+ = Internal Ref; V- = GND */
+	           | INCH_2;  /* Channel A2, charge-pump voltage */
+
+	ADC12MCTL3 = EOS      /* End of Sequence */
+	           | SREF_1   /* V+ = Internal Ref; V- = GND */
+	           | INCH_3;  /* Channel A3, motor rail voltage */
 
 	ADC12IE = 0x2;      /* Interrupt on last conversion */
 
