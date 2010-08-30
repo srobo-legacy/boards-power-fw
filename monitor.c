@@ -40,7 +40,7 @@ bool charger_present = false;
 
 void monitor_cdetect_cb(uint16_t flags);
 
-static pinint_conf_t cdetect_int = {
+static const pinint_conf_t cdetect_int = {
 	.mask = CDETECT << 8,
 	.int_cb = monitor_cdetect_cb,
 };

@@ -60,7 +60,7 @@ static input_rot_state_t input_rot_state[2] = {S_IDLE, S_IDLE};
 void but_isr(uint16_t flags);
 static void input_rot_fsm(uint8_t n);
 
-static pinint_conf_t button_int = {
+static const pinint_conf_t button_int = {
 	.mask = BUT0 | BUT1 | BUT2 | RBUT0 | RBUT1 | R0A | R1A,
 	.int_cb = but_isr,
 };
