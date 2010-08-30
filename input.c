@@ -18,6 +18,7 @@
 #include <io.h>
 #include "input.h"
 #include "drivers/pinint.h"
+#include "pins.h"
 #include "leds.h"
 
 #define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)

@@ -21,6 +21,7 @@
 #include "monitor.h"
 #include "piezo.h"
 #include "drivers/pinint.h"
+#include "pins.h"
 
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
