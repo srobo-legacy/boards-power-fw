@@ -18,7 +18,6 @@
 #include <io.h>
 #include "input.h"
 #include "drivers/pinint.h"
-#include "pins.h"
 #include "leds.h"
 
 #define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
@@ -61,10 +60,13 @@ static input_rot_state_t input_rot_state[2] = {S_IDLE, S_IDLE};
 void but_isr(uint16_t flags);
 static void input_rot_fsm(uint8_t n);
 
+static pinint_conf_t button_int = {
+	.mask = BUT0 | BUT1 | BUT2 | RBUT0 | RBUT1 | R0A | R1A,
+	.int_cb = but_isr,
+};
+
 void input_init(void) {
-	pinint_conf[PININT_BUTTON].mask =
-	        (BUT0 | BUT1 | BUT2 | RBUT0 | RBUT1 | R0A | R1A);
-	pinint_conf[PININT_BUTTON].int_cb = but_isr;
+	pinint_add( &button_int );
 
 	P1DIR &= ~P1SIGNALS; /* Set to inputs */
 	P2DIR &= ~P2SIGNALS;

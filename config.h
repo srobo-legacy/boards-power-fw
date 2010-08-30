@@ -20,4 +20,7 @@
    the token. */
 #define SRIC_DIRECTOR 1
 
+/* Number of pin interrupt table entries */
+#define PININT_NCONF 4
+
 #endif /* __CONFIG_H */

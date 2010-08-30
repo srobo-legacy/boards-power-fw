@@ -40,6 +40,11 @@ bool charger_present = false;
 
 void monitor_cdetect_cb(uint16_t flags);
 
+static pinint_conf_t cdetect_int = {
+	.mask = CDETECT << 8,
+	.int_cb = monitor_cdetect_cb,
+};
+
 interrupt (ADC12_VECTOR) adc_isr(void) {
 	uint8_t adc12v_l = ADC12IV;
 
@@ -92,8 +97,7 @@ void monitor_init(void) {
 	ADC12CTL0 |= ADC12SC;
 
 	/* Init charger detection stuff */
-	pinint_conf[PININT_CHARGER].mask = CDETECT << 8;
-	pinint_conf[PININT_CHARGER].int_cb = monitor_cdetect_cb;
+	pinint_add( &cdetect_int );
 	P2DIR &= ~CDETECT;
 	P2SEL &= ~CDETECT;
 	SET_CDETECT_EDGE(IO_IESPIN_FALLING);

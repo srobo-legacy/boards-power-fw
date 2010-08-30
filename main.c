@@ -98,6 +98,7 @@ void init(void) {
 	/* Source SMCLK from XT2 */
 	BCSCTL2 |= SELS;
 
+	pinint_init();
 	sched_init();
 	piezo_init();
 	power_init();
