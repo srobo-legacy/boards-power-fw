@@ -20,7 +20,7 @@
 #include <signal.h>
 #include "monitor.h"
 #include "piezo.h"
-#include "pinint.h"
+#include "drivers/pinint.h"
 
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
