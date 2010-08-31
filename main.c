@@ -30,6 +30,7 @@
 #include "libsric/sric.h"
 #include "libsric/hostser.h"
 #include "libsric/sric-gw.h"
+#include "libsric/token-dir.h"
 
 piezo_config_t piezo_config = {
 	.buf_low = NULL,
@@ -85,6 +86,20 @@ const sric_conf_t sric_conf = {
         /* Send received frames to the gateway */
         .rx_cmd = sric_gw_sric_rxcmd,
         .rx_resp = sric_gw_sric_rxresp,
+	.error = sric_gw_sric_err,
+	.token_drv = &token_dir_drv,
+};
+
+const token_dir_conf_t token_dir_conf = {
+	.haz_token = sric_haz_token,
+
+	.to_port = &P3OUT,
+	.to_dir = &P3DIR,
+	.to_mask = (1<<1),
+
+	.ti_port = &P1IN,
+	.ti_dir = &P1DIR,
+	.ti_mask = (1<<0),
 };
 
 void init(void) {
@@ -111,6 +126,7 @@ void init(void) {
 	hostser_init();
 	sric_init();
 	sric_gw_init();
+	token_dir_init();
 
 	eint();
 }
