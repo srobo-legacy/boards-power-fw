@@ -83,6 +83,10 @@ const sric_conf_t sric_conf = {
         .usart_rx_gate = usart_rx_gate,
         .usart_n = 0,
 
+	.txen_dir = &P3DIR,
+	.txen_port = &P3OUT,
+	.txen_mask = (1<<0),
+
         /* Send received frames to the gateway */
         .rx_cmd = sric_gw_sric_rxcmd,
         .rx_resp = sric_gw_sric_rxresp,
