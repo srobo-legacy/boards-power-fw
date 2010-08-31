@@ -18,8 +18,11 @@ include depend
 power: ${O_FILES} ${SUBDIRS}
 	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS}
 
-${SUBDIRS}:
+drivers:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+
+libsric:
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS} -I`pwd`" LDFLAGS="${LDFLAGS}"
 
 depend: *.c
 	rm -f depend
