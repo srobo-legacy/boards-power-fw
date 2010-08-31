@@ -20,6 +20,7 @@
 #include <signal.h>
 #include "drivers/xt2.h"
 #include "drivers/sched.h"
+#include "drivers/pinint.h"
 #include "leds.h"
 #include "piezo.h"
 #include "power.h"
