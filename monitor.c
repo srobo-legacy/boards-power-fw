@@ -21,6 +21,7 @@
 #include "monitor.h"
 #include "piezo.h"
 #include "drivers/pinint.h"
+#include "drivers/sched.h"
 
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
@@ -38,6 +39,7 @@ uint16_t pump_voltage=0;
 bool charger_present = false;
 
 void monitor_cdetect_cb(uint16_t flags);
+bool monitor_cdetect_task_cb(void* ud);
 
 static const pinint_conf_t cdetect_int = {
 	.mask = CDETECT << 8,
@@ -107,14 +109,28 @@ void monitor_init(void) {
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
 piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
 
+static sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
+static bool cdetect_waiting = false;
+
 void monitor_cdetect_cb(uint16_t flags) {
-	if (charger_present) {
+	if (!cdetect_waiting) {
+		cdetect_waiting = true;
+		sched_add(&cdetect_task);
+	}
+}
+
+bool monitor_cdetect_task_cb(void *ud) {
+	if (charger_present && P2IN & CDETECT) {
+		/* Charger was plugged in and is now not */
 		SET_CDETECT_EDGE(IO_IESPIN_FALLING);
 		charger_present = false;
 		piezo_play(ch_out, 2, false);
-	} else {
+	} else if (!charger_present && !(P2IN & CDETECT)) {
+		/* Charger wasn't plugged in and is now */
 		SET_CDETECT_EDGE(IO_IESPIN_RISING);
 		charger_present = true;
 		piezo_play(ch_in, 2, false);
 	}
+	cdetect_waiting = true;
+	return false;
 }

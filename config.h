@@ -10,7 +10,7 @@
 #define SCHED_DIV 8000
 
 /* Size of the queue for schedule tasks */
-#define SCHED_QUEUE_SIZE 2
+#define SCHED_QUEUE_SIZE 4
 
 /* Length of the piezo tune buffer, each note is 6 bytes */
 #define PIEZO_BUFFER_LEN 64
