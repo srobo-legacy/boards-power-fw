@@ -119,6 +119,7 @@ void monitor_cdetect_cb(uint16_t flags) {
 	}
 }
 
+/* TODO: Check that the charger is actually charging the battery */
 bool monitor_cdetect_task_cb(void *ud) {
 	if (charger_present && P2IN & CDETECT) {
 		/* Charger was plugged in and is now not */
