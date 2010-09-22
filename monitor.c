@@ -33,10 +33,12 @@
 #define SET_CDETECT_EDGE(e) field_set(P2IES, e ? CDETECT:0, CDETECT)
 
 uint16_t batt_voltage=0;
-uint16_t batt_current=0;
+int16_t batt_current=0;
 uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
 bool charger_present = false;
+
+#define BATT_CURRENT_OFFSET 683
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
@@ -51,7 +53,7 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 	uint8_t adc12v_l = ADC12IV;
 
 	if (adc12v_l == 0x08) {
-		batt_current = ADC12MEM0;
+		batt_current = ADC12MEM0 - BATT_CURRENT_OFFSET;
 		batt_voltage = ADC12MEM1;
 		pump_voltage = ADC12MEM2;
 		motor_voltage = ADC12MEM3;
