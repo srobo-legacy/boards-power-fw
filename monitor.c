@@ -39,6 +39,7 @@ uint16_t pump_voltage=0;
 bool charger_present = false;
 
 #define BATT_CURRENT_OFFSET 683
+#define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
@@ -141,5 +142,27 @@ bool monitor_cdetect_task_cb(void *ud) {
 
 bool monitor_charger_check(void *ud) {
 	/* Check to see if the thing is charging */
+	bool charger_present_tmp;
+	if (batt_current < 0 ||
+	    (batt_current < 20 && batt_voltage > CHARGER_PRESENT_VOLTAGE)) {
+		/* Definitely charging as the current is negative or the
+		 * current isn't negative but the voltage indicates
+		 * that the charge is still connected and switched on */
+		charger_present_tmp = true;
+	} else {
+		/* Current is positive and the voltage is low, running
+		 * on the battery and not charging */
+		charger_present_tmp = false;
+	}
+
+	if (charger_present == true && charger_present_tmp == false) {
+		/* Charger removed */
+		piezo_play(ch_out, 2, false);
+	} else if (charger_present == false && charger_present_tmp == true) {
+		/* Charger plugged in */
+		piezo_play(ch_in, 2, false);
+	}
+
+	charger_present = charger_present_tmp;
 	return true;
 }
