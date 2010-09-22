@@ -40,6 +40,7 @@ bool charger_present = false;
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
+bool monitor_charger_check(void* ud);
 
 static const pinint_conf_t cdetect_int = {
 	.mask = CDETECT << 8,
@@ -59,6 +60,10 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 		ADC12IFG = 0;
 	}
 }
+
+/* Check to see if the charger is present and charging the battery
+ * every 5 seconds */
+static sched_task_t charger_check_task = {.cb=monitor_charger_check, .t=5000};
 
 void monitor_init(void) {
 	/* Init ADC stuff */
@@ -104,6 +109,8 @@ void monitor_init(void) {
 	SET_CDETECT_EDGE(IO_IESPIN_FALLING);
 	P2IFG &= ~CDETECT;
 	P2IE  |=  CDETECT;
+
+	sched_add(&charger_check_task);
 }
 
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
@@ -119,19 +126,18 @@ void monitor_cdetect_cb(uint16_t flags) {
 	}
 }
 
-/* TODO: Check that the charger is actually charging the battery */
 bool monitor_cdetect_task_cb(void *ud) {
-	if (charger_present && P2IN & CDETECT) {
-		/* Charger was plugged in and is now not */
+	if (P2IN & CDETECT) {
 		SET_CDETECT_EDGE(IO_IESPIN_FALLING);
-		charger_present = false;
-		piezo_play(ch_out, 2, false);
-	} else if (!charger_present && !(P2IN & CDETECT)) {
-		/* Charger wasn't plugged in and is now */
+	} else {
 		SET_CDETECT_EDGE(IO_IESPIN_RISING);
-		charger_present = true;
-		piezo_play(ch_in, 2, false);
 	}
+	monitor_charger_check(NULL);
 	cdetect_waiting = true;
 	return false;
+}
+
+bool monitor_charger_check(void *ud) {
+	/* Check to see if the thing is charging */
+	return true;
 }
