@@ -97,7 +97,7 @@ bool piezo_play_cb(void *p) {
 	}
 
 	if (piezo_buffer.in != piezo_buffer.out) {
-		piezo_note_t *n = &(piezo_buffer.notes[piezo_buffer.out]);
+		volatile piezo_note_t *n = &(piezo_buffer.notes[piezo_buffer.out]);
 
 		if (n->f == 0) {
 			PIEZO_DIS();
