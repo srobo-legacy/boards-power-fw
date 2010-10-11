@@ -1,4 +1,4 @@
-/*   Copyright (C) 2010 Richard Barlow
+/*   Copyright (C) 2010 Richard Barlow, Robert Spanton
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "libsric/hostser.h"
 #include "libsric/sric-gw.h"
 #include "libsric/token-dir.h"
+#include "libsric/sric-client.h"
 
 piezo_config_t piezo_config = {
 	.buf_low = NULL,
@@ -106,6 +107,10 @@ const token_dir_conf_t token_dir_conf = {
 	.ti_mask = (1<<0),
 };
 
+const sric_client_conf_t sric_client_conf = {
+	.devclass = SRIC_CLASS_POWER,
+};
+
 void init(void) {
 	leds_init();
 
@@ -133,6 +138,9 @@ void init(void) {
 	token_dir_init();
 
 	eint();
+
+	/* Kick-off that bus */
+	sric_gw_init_bus();
 }
 
 int main(void) {
