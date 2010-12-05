@@ -3,7 +3,7 @@ CC := msp430-gcc
 
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
 CFLAGS += -include `pwd`/config.h
-LDFLAGS :=
+LDFLAGS := -Wl,-Map=power.map
 
 O_FILES = main.o power.o piezo.o monitor.o input.o
 SUBDIRS = drivers libsric
@@ -33,7 +33,7 @@ depend: *.c
 .PHONY: clean ${SUBDIRS}
 
 clean:
-	-rm -f power depend *.o
+	-rm -f power power.map depend *.o
 	for d in ${SUBDIRS} ; do\
 		${MAKE} -C $$d clean ; \
 	done ;
