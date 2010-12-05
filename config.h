@@ -13,7 +13,7 @@
 #define SCHED_QUEUE_SIZE 4
 
 /* Length of the piezo tune buffer, each note is 6 bytes */
-#define PIEZO_BUFFER_LEN 64
+#define PIEZO_BUFFER_LEN 16
 
 /* Whether we're the bus director
    If 1, this causes the device to take address 1, generate and manage
