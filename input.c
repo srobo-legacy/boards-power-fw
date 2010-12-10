@@ -20,6 +20,10 @@
 #include "drivers/pinint.h"
 #include "leds.h"
 
+/* 'input_conf' must be linked in.
+ * Non-const as the callback is changed during POST */
+extern input_conf_t input_conf;
+
 #define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
 
 #define BUT0 (1<<1)
@@ -57,6 +61,8 @@ typedef enum {
 
 static input_rot_state_t input_rot_state[2] = {S_IDLE, S_IDLE};
 
+static uint16_t input_cb_flags;
+
 void but_isr(uint16_t flags);
 static void input_rot_fsm(uint8_t n);
 
@@ -85,20 +91,22 @@ void input_init(void) {
 }
 
 void but_isr(uint16_t flags) {
+	input_cb_flags = 0;
+
 	if (flags & BUT0) {
-		led_toggle(0);
+		input_cb_flags |= INPUT_B0;
 	}
 	if (flags & BUT1) {
-		led_toggle(1);
+		input_cb_flags |= INPUT_B1;
 	}
 	if (flags & BUT2) {
-		led_toggle(2);
+		input_cb_flags |= INPUT_B2;
 	}
 	if (flags & RBUT0) {
-		uled_toggle(0);
+		input_cb_flags |= INPUT_R0B;
 	}
 	if (flags & RBUT1) {
-		uled_toggle(1);
+		input_cb_flags |= INPUT_R1B;
 	}
 
 	if (flags & R0A) {
@@ -107,6 +115,11 @@ void but_isr(uint16_t flags) {
 	if (flags & R1A) {
 		input_rot_fsm(1);
 	}
+
+	/* Finished checking all button states and calculating
+	 * rotary encoder rotations, invoke input callback */
+	if (input_conf.inp_cb)
+		input_conf.inp_cb(input_cb_flags);
 }
 
 static void input_rot_fsm(uint8_t n) {
@@ -126,9 +139,9 @@ static void input_rot_fsm(uint8_t n) {
 		} else {
 			/* Clockwise event */
 			if (n)
-				TACCR0 -= 20;
+				input_cb_flags |= INPUT_R1CW;
 			else
-				TACCR1 += 1;
+				input_cb_flags |= INPUT_R0CW;
 			input_rot_state[n] = S_IDLE;
 		}
 		set_rotary_edge_a(n, IO_IESPIN_FALLING);
@@ -137,9 +150,9 @@ static void input_rot_fsm(uint8_t n) {
 		if (test_rotary_b(n)) {
 			/* Count-clockwise event */
 			if (n)
-				TACCR0 += 20;
+				input_cb_flags |= INPUT_R1CCW;
 			else
-				TACCR1 -= 1;
+				input_cb_flags |= INPUT_R0CCW;
 			input_rot_state[n] = S_IDLE;
 		} else {
 			/* Again must have bounced back and forth */

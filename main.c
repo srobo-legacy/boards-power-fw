@@ -37,6 +37,10 @@ piezo_config_t piezo_config = {
 	.buf_low = NULL,
 };
 
+input_conf_t input_conf = {
+	.inp_cb = NULL,
+};
+
 const usart_t usart_config[2] = {
         {
                 .tx_gen_byte = sric_tx_cb,
