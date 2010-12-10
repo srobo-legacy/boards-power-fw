@@ -43,4 +43,7 @@ typedef struct {
 
 void input_init(void);
 
+/* Get the state of the inputs */
+uint16_t input_get(void);
+
 #endif /* __INPUT_H */
