@@ -48,7 +48,7 @@ void piezo_beep(void);
 /* Output a string of long and short beeps, 1kHz 800ms/200ms. Blocking.
  * pattern consists of a string containing the characters '.' and '-'
  * where '.' is a short (200ms) beep and '-' is a long (800ms) beep.
- * A delay of 500ms is added between beeps */
+ * A delay of 500ms is added between beeps. Maximum of 8 beeps. */
 void piezo_beep_pattern(char *pattern);
 
 #endif /* __PIEZO_H */
