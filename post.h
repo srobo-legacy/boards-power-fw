@@ -18,6 +18,12 @@
 #ifndef __POST_H
 #define __POST_H
 
+#include <stdbool.h>
+
 void post_init(void);
+
+/* Performs a Power-On Self Test.
+ * Returns true on success, false on failure */
+bool post_run(void);
 
 #endif /* __POST_H */

@@ -17,7 +17,25 @@
 
 #include <io.h>
 #include "post.h"
+#include "piezo.h"
+#include "input.h"
 #include "leds.h"
 
+static void post_test_mode(void);
+
 void post_init(void) {
+}
+
+bool post_run(void) {
+	/* Run 'test-mode' if the two buttons to the right of the screen
+	 * are held in */
+	if (input_get() == (INPUT_B1 | INPUT_B2))
+		post_test_mode();
+
+	piezo_beep();
+	return true;
+}
+
+static void post_test_mode(void) {
+	while(1);
 }
