@@ -129,4 +129,30 @@ void piezo_beep(void) {
 }
 
 void piezo_beep_pattern(char *pattern) {
+	char c;
+	uint8_t i = 0;
+	piezo_note_t pattern_tune[16];
+	while((c = *pattern++) != '\0') {
+		pattern_tune[i++].f = 1000;
+		pattern_tune[i++].d = c == '.' ? 200 : 800;
+		pattern_tune[i++].v = 5;
+
+		/* Pause between beeps */
+		pattern_tune[i++].f = 0;
+		pattern_tune[i++].d = 490; /* Already 5ms between notes */
+		pattern_tune[i++].v = 0;
+
+		/* Don't want to run over the end of the buffer if more than
+		 * 8 chars are supplied */
+		if (i == 16)
+			break;
+	}
+
+	piezo_play(pattern_tune, i, false);
+
+	/* Block until all notes in the pizeo playback buffer have been played.
+	 * Will block until all notes have been played, even ones that have
+	 * not originated from this function but it shouldn't matter too much.
+	 */
+	while(playing);
 }
