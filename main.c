@@ -115,7 +115,7 @@ const sric_client_conf_t sric_client_conf = {
 	.devclass = SRIC_CLASS_POWER,
 };
 
-void init(void) {
+void init_board(void) {
 	leds_init();
 
 	/* Start crystal osc. and source MCLK from it.
@@ -133,7 +133,9 @@ void init(void) {
 	power_init();
 	monitor_init();
 	input_init();
+}
 
+void init_sric(void) {
 	/* Bring the SRIC related stuff up: */
 	usart_init();
 	hostser_init();
@@ -151,7 +153,8 @@ int main(void) {
 	/* Disable watchdog timer */
 	WDTCTL = WDTHOLD | WDTPW;
 
-	init();
+	init_board();
+	init_sric();
 	led_set(0, 1);
 	piezo_beep();
 	power_motor_enable();
