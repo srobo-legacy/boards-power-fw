@@ -1,4 +1,4 @@
-ARCH = msp430x169
+ARCH = msp430x167
 CC := msp430-gcc
 
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
