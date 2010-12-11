@@ -23,10 +23,7 @@
 
 static void post_test_mode(void);
 
-void post_init(void) {
-}
-
-bool post_run(void) {
+bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
 	 * are held in */
 	if (input_get() == (INPUT_B1 | INPUT_B2))

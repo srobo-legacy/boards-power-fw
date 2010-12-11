@@ -20,10 +20,8 @@
 
 #include <stdbool.h>
 
-void post_init(void);
-
 /* Performs a Power-On Self Test.
  * Returns true on success, false on failure */
-bool post_run(void);
+bool post(void);
 
 #endif /* __POST_H */
