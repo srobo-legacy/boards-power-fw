@@ -137,7 +137,7 @@ bool monitor_cdetect_task_cb(void *ud) {
 		SET_CDETECT_EDGE(IO_IESPIN_RISING);
 	}
 	monitor_charger_check(NULL);
-	cdetect_waiting = true;
+	cdetect_waiting = false;
 	return false;
 }
 
