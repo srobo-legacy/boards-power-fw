@@ -144,7 +144,12 @@ bool monitor_cdetect_task_cb(void *ud) {
 bool monitor_charger_check(void *ud) {
 	/* Check to see if the thing is charging */
 	bool charger_present_tmp;
-	if (batt_current < 0 ||
+
+	if (P2IN & CDETECT) {
+		/* No charger plugged in, cannot be charging no matter what
+		 * other measurement say */
+		charger_present_tmp = false;
+	} else if (batt_current < 0 ||
 	    (batt_current < 20 && batt_voltage > CHARGER_PRESENT_VOLTAGE)) {
 		/* Definitely charging as the current is negative or the
 		 * current isn't negative but the voltage indicates
