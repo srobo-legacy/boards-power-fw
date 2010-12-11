@@ -39,6 +39,8 @@ piezo_config_t piezo_config = {
 };
 
 input_conf_t input_conf = {
+	/* This should not be set to the SRIC function
+	 * until after POST */
 	.inp_cb = NULL,
 };
 
@@ -143,6 +145,10 @@ void init_sric(void) {
 	sric_init();
 	sric_gw_init();
 	token_dir_init();
+
+	/* Eventually this will be a function to send notes
+	 * to the BeagleBoard */
+	input_conf.inp_cb = NULL;
 
 	eint();
 
