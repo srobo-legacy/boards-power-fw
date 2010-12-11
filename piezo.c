@@ -117,7 +117,9 @@ bool piezo_play_cb(void *p) {
 		requires_notif = false;
 	}
 
-	if (requires_notif && (piezo_buffer.out + 5) % PIEZO_BUFFER_LEN  == piezo_buffer.in) {
+	if (requires_notif &&
+	    (piezo_buffer.out + 5) % PIEZO_BUFFER_LEN  == piezo_buffer.in &&
+	    piezo_config.buf_low) {
 		piezo_config.buf_low();
 	}
 	return playing;
