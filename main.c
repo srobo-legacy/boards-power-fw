@@ -26,6 +26,7 @@
 #include "power.h"
 #include "monitor.h"
 #include "input.h"
+#include "post.h"
 #include "drivers/usart.h"
 #include "libsric/sric.h"
 #include "libsric/hostser.h"
@@ -154,7 +155,15 @@ int main(void) {
 	WDTCTL = WDTHOLD | WDTPW;
 
 	init_board();
+
+	/* Run POST. Requires interrupts to be enabled but they
+	 * should be disabled while init'ing SRIC */
+	eint();
+	post();
+	dint();
+
 	init_sric();
+
 	led_set(0, 1);
 	piezo_beep();
 	power_motor_enable();
