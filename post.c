@@ -36,6 +36,15 @@ sched_task_t flash_task = {.t = 1000,
                            .udata = NULL};
 bool flash_toggle;
 
+static piezo_note_t enter_test_mode[] = {
+	{.f=100,  .d=100, .v=2},
+	{.f=200,  .d=200, .v=2},
+	{.f=500,  .d=300, .v=2},
+	{.f=1000, .d=400, .v=2},
+	{.f=2000, .d=500, .v=2},
+	{.f=5000, .d=600, .v=2},
+};
+
 bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
 	 * are held in */
@@ -49,6 +58,7 @@ bool post(void) {
 static void post_test_mode(void) {
 	input_conf.inp_cb = post_input_cb;
 
+	piezo_play(enter_test_mode, 6, false);
 	sched_add(&flash_task);
 
 	while(1);
