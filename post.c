@@ -21,7 +21,12 @@
 #include "input.h"
 #include "leds.h"
 
+/* Decalred in main.c
+ * Used here to hook into the input module callback */
+extern input_conf_t input_conf;
+
 static void post_test_mode(void);
+static void post_input_cb(uint16_t flags);
 
 bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
@@ -34,5 +39,10 @@ bool post(void) {
 }
 
 static void post_test_mode(void) {
+	input_conf.inp_cb = post_input_cb;
+
 	while(1);
+}
+
+static void post_input_cb(uint16_t flags) {
 }
