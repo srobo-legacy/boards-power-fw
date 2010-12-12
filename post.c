@@ -17,6 +17,7 @@
 
 #include <io.h>
 #include "post.h"
+#include "drivers/sched.h"
 #include "piezo.h"
 #include "input.h"
 #include "leds.h"
@@ -27,6 +28,11 @@ extern input_conf_t input_conf;
 
 static void post_test_mode(void);
 static void post_input_cb(uint16_t flags);
+static bool post_flash_cb(void* ud);
+
+sched_task_t flash_task = {.t = 1000,
+                           .cb = post_flash_cb,
+                           .udata = NULL};
 
 bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
@@ -40,6 +46,8 @@ bool post(void) {
 
 static void post_test_mode(void) {
 	input_conf.inp_cb = post_input_cb;
+
+	sched_add(&flash_task);
 
 	while(1);
 }
@@ -80,4 +88,11 @@ static void post_input_cb(uint16_t flags) {
 	if (flags & INPUT_R1CCW)
 		uled_toggle(1);
 
+}
+
+static bool post_flash_cb(void* ud) {
+	dbg_toggle();
+	chrg_toggle();
+
+	return true;
 }
