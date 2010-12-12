@@ -43,7 +43,9 @@ typedef struct {
 
 void input_init(void);
 
-/* Get the state of the inputs */
+/* Get the state of the inputs
+   Returns a bitmask of all the inputs.
+   If a given bit is 1, then the button is pressed. */
 uint16_t input_get(void);
 
 #endif /* __INPUT_H */
