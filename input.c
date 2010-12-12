@@ -92,15 +92,15 @@ void input_init(void) {
 
 uint16_t input_get() {
 	uint16_t state = 0;
-	if (P1IN & BUT0)
+	if (!(P1IN & BUT0))
 		state |= INPUT_B0;
-	if (P1IN & BUT1)
+	if (!(P1IN & BUT1))
 		state |= INPUT_B1;
-	if (P1IN & BUT2)
+	if (!(P1IN & BUT2))
 		state |= INPUT_B2;
-	if (P2IN & RBUT0)
+	if (!(P2IN & RBUT0))
 		state |= INPUT_R0B;
-	if (P1IN & RBUT1)
+	if (!(P1IN & RBUT1))
 		state |= INPUT_R1B;
 	return state;
 }
