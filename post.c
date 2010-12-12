@@ -20,6 +20,7 @@
 #include "drivers/sched.h"
 #include "piezo.h"
 #include "input.h"
+#include "power.h"
 #include "leds.h"
 
 /* Decalred in main.c
@@ -33,6 +34,7 @@ static bool post_flash_cb(void* ud);
 sched_task_t flash_task = {.t = 1000,
                            .cb = post_flash_cb,
                            .udata = NULL};
+bool flash_toggle;
 
 bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
@@ -93,6 +95,14 @@ static void post_input_cb(uint16_t flags) {
 static bool post_flash_cb(void* ud) {
 	dbg_toggle();
 	chrg_toggle();
+
+	if (flash_toggle) {
+		flash_toggle = false;
+		power_motor_enable();
+	} else {
+		flash_toggle = true;
+		power_motor_disable();
+	}
 
 	return true;
 }
