@@ -45,10 +45,12 @@ static piezo_note_t enter_test_mode[] = {
 	{.f=5000, .d=600, .v=2},
 };
 
+#define POST_ENTRY_BUTTONS (INPUT_B1 | INPUT_B2)
+
 bool post(void) {
 	/* Run 'test-mode' if the two buttons to the right of the screen
 	 * are held in */
-	if (input_get() == (INPUT_B1 | INPUT_B2))
+	if ( (input_get() & POST_ENTRY_BUTTONS) == POST_ENTRY_BUTTONS )
 		post_test_mode();
 
 	piezo_beep();
