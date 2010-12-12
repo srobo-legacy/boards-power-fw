@@ -44,5 +44,40 @@ static void post_test_mode(void) {
 	while(1);
 }
 
+/* Pressing a push button causes the LED next to it to toggle.
+ * Pressing a rotary encoder causes the two user LEDs closest to it to toggle.
+ *
+ * Rotary enocder rotations (toggles LEDs):
+ *  - Left encoder clockwise: middle user led
+ *  - Left encoder anticlockwise: left user led
+ *  - Right encoder clockwise: right user led
+ *  - Right encoder anticlockwise: middle user led
+ */
 static void post_input_cb(uint16_t flags) {
+	if (flags & INPUT_B0)
+		led_toggle(0);
+	if (flags & INPUT_B1)
+		led_toggle(1);
+	if (flags & INPUT_B2)
+		led_toggle(2);
+
+	if (flags & INPUT_R0B) {
+		uled_toggle(0);
+		uled_toggle(1);
+	}
+	if (flags & INPUT_R1B) {
+		uled_toggle(1);
+		uled_toggle(2);
+	}
+
+	if (flags & INPUT_R0CW)
+		uled_toggle(1);
+	if (flags & INPUT_R0CCW)
+		uled_toggle(0);
+
+	if (flags & INPUT_R1CW)
+		uled_toggle(2);
+	if (flags & INPUT_R1CCW)
+		uled_toggle(1);
+
 }
