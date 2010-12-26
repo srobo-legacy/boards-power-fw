@@ -24,31 +24,47 @@
  * Non-const as the callback is changed during POST */
 extern input_conf_t input_conf;
 
+static const uint16_t buttons[] = {
+	1<<1, /* B0 */
+	1<<3, /* B1 */
+	1<<4, /* B2 */
+	1<<(2+8), /* B3 (Left rotary encoder) */
+	1<<7, /* B4 (Right rotary encoder) */
+};
+const uint8_t num_buttons = sizeof(buttons)/sizeof(uint16_t);
+
+#define field_set16(reg, bit) do { \
+                                  if (bit > 0xff) \
+                                      P2##reg |= (bit)>>8; \
+                                  else \
+                                      P1##reg |= (bit); \
+                                 } while(0)
+
+#define field_clear16(reg, bit) do { \
+                                    if (bit > 0xff) \
+                                        P2##reg &= ~((bit)>>8); \
+                                    else \
+                                        P1##reg &= ~(bit); \
+                                   } while(0)
+#define field_test16(reg, bit) (!((bit > 0xff) ? P2##reg & ((bit)>>8) : P1##reg & (bit)))
+
 #define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
 
-#define BUT0 (1<<1)
-#define BUT1 (1<<3)
-#define BUT2 (1<<4)
-
-#define RBUT0 (1<<(2+8)) /* On P2 so shift by 8 for flags */
-#define RBUT1 (1<<7)
-
-#define R0A (1<<(0+8))
-#define R0B (1<<(1+8))
+#define R0A (1<<0)
+#define R0B (1<<1)
 #define R1A (1<<5)
 #define R1B (1<<6)
 
-/* Don't include rotary encoder 'B' inputs, don't want interrupts on them */
-#define P1SIGNALS (BUT0 | BUT1 | BUT2 | RBUT1 | R1A)
-#define P2SIGNALS ((RBUT0 | R0A) >> 8)
+#define P1SIGNALS (R1A)
+#define P2SIGNALS (R0A)
 
-#define test_rotary_b(n) (n ? P1IN & R1B : P2IN & (R0B>>8))
+#define test_rotary_b(n) (n ? P1IN & R1B : P2IN & R0B)
 
 /* n = rotary encoder (0 or 1)
  * e = edge (0 = rising, 1 = falling) */
 #define set_rotary_edge_a(n, e) do { \
                                     if (!n) \
-                                        field_set(P2IES, e ? (R0A>>8):0, (R0A>>8)); \
+                                        field_set(P2IES, e ? R0A:0, R0A); \
                                     else \
                                         field_set(P1IES, e ? R1A:0, R1A); \
                                 } while(0)
@@ -67,12 +83,21 @@ void but_isr(uint16_t flags);
 static void input_rot_fsm(uint8_t n);
 
 static const pinint_conf_t button_int = {
-	.mask = BUT0 | BUT1 | BUT2 | RBUT0 | RBUT1 | R0A | R1A,
+	.mask = (1<<1) | (1<<3) | (1<<4) | (1<<(8+2)) | (1<<7) | (R0A<<8) | R1A,
 	.int_cb = but_isr,
 };
 
 void input_init(void) {
 	pinint_add( &button_int );
+
+	int i;
+	for (i = 0; i < num_buttons; i++) {
+		field_clear16(DIR, buttons[i]); /* Inputs */
+		field_clear16(SEL, buttons[i]); /* GPIO */
+		field_set16(IES, buttons[i]);   /* Int on falling edge */
+		field_clear16(IFG, buttons[i]); /* Clear int flag */
+		field_set16(IE, buttons[i]);    /* Enable interrupt */
+	}
 
 	P1DIR &= ~P1SIGNALS; /* Set to inputs */
 	P2DIR &= ~P2SIGNALS;
@@ -92,39 +117,24 @@ void input_init(void) {
 
 uint16_t input_get() {
 	uint16_t state = 0;
-	if (!(P1IN & BUT0))
-		state |= INPUT_B0;
-	if (!(P1IN & BUT1))
-		state |= INPUT_B1;
-	if (!(P1IN & BUT2))
-		state |= INPUT_B2;
-	if (!(P2IN & RBUT0))
-		state |= INPUT_R0B;
-	if (!(P1IN & RBUT1))
-		state |= INPUT_R1B;
+	int i;
+	for (i = 0; i < num_buttons; i++) {
+		if (field_test16(IN, buttons[i]))
+			state |= 1<<i;
+	}
 	return state;
 }
 
 void but_isr(uint16_t flags) {
 	input_cb_flags = 0;
 
-	if (flags & BUT0) {
-		input_cb_flags |= INPUT_B0;
-	}
-	if (flags & BUT1) {
-		input_cb_flags |= INPUT_B1;
-	}
-	if (flags & BUT2) {
-		input_cb_flags |= INPUT_B2;
-	}
-	if (flags & RBUT0) {
-		input_cb_flags |= INPUT_R0B;
-	}
-	if (flags & RBUT1) {
-		input_cb_flags |= INPUT_R1B;
+	int i;
+	for (i = 0; i < num_buttons; i++) {
+		if (field_test16(IN, buttons[i]))
+			input_cb_flags |= 1<<i;
 	}
 
-	if (flags & R0A) {
+	if (flags & (R0A<<8)) {
 		input_rot_fsm(0);
 	}
 	if (flags & R1A) {
