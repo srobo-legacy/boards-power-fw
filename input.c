@@ -75,12 +75,20 @@ typedef enum {
 	S_CCW,  /* B low, when entered from S_IDLE */
 } input_rot_state_t;
 
+typedef enum {
+	S_UP,
+	S_DOWN
+} input_but_state_t;
+
 static input_rot_state_t input_rot_state[2] = {S_IDLE, S_IDLE};
+static input_but_state_t input_but_state[5] = {S_UP, S_UP, S_UP, S_UP, S_UP};
 
 static uint16_t input_cb_flags;
+static uint16_t input_cb_edges;
 
 void but_isr(uint16_t flags);
 static void input_rot_fsm(uint8_t n);
+static void input_but_fsm(uint8_t n);
 
 static const pinint_conf_t button_int = {
 	.mask = (1<<1) | (1<<3) | (1<<4) | (1<<(8+2)) | (1<<7) | (R0A<<8) | R1A,
@@ -130,8 +138,8 @@ void but_isr(uint16_t flags) {
 
 	int i;
 	for (i = 0; i < num_buttons; i++) {
-		if (field_test16(IN, buttons[i]))
-			input_cb_flags |= 1<<i;
+		if (flags & buttons[i])
+			input_but_fsm(i);
 	}
 
 	if (flags & (R0A<<8)) {
@@ -144,7 +152,27 @@ void but_isr(uint16_t flags) {
 	/* Finished checking all button states and calculating
 	 * rotary encoder rotations, invoke input callback */
 	if (input_conf.inp_cb)
-		input_conf.inp_cb(input_cb_flags);
+		input_conf.inp_cb(input_cb_flags, input_cb_edges);
+}
+
+static void input_but_fsm(uint8_t n) {
+        switch (input_but_state[n]) {
+        case S_UP:
+                if (field_test16(IN, buttons[n])) {
+                        input_but_state[n] = S_DOWN;
+                        field_clear16(IES, buttons[n]);
+                        input_cb_flags |= 1<<n;
+                        input_cb_edges |= 1<<n;
+                }
+                break;
+        case S_DOWN:
+                if (!field_test16(IN, buttons[n])) {
+                        input_but_state[n] = S_UP;
+                        field_set16(IES, buttons[n]);
+                        input_cb_flags |= 1<<n;
+                }
+                break;
+        }
 }
 
 static void input_rot_fsm(uint8_t n) {

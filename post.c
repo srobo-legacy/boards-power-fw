@@ -28,7 +28,7 @@
 extern input_conf_t input_conf;
 
 static void post_test_mode(void);
-static void post_input_cb(uint16_t flags);
+static void post_input_cb(uint16_t flags, uint16_t edges);
 static bool post_flash_cb(void* ud);
 
 sched_task_t flash_task = {.t = 1000,
@@ -75,7 +75,7 @@ static void post_test_mode(void) {
  *  - Right encoder clockwise: right user led
  *  - Right encoder anticlockwise: middle user led
  */
-static void post_input_cb(uint16_t flags) {
+static void post_input_cb(uint16_t flags, uint16_t edges) {
 	if (flags & INPUT_B0)
 		led_toggle(0);
 	if (flags & INPUT_B1)

@@ -37,8 +37,10 @@
 
 typedef struct {
 	/* Callback for button presses/rotary encoder turns
-	 * flags indicates what has been pressed */
-	void (*inp_cb) (uint16_t flags);
+	 * flags indicates what has been pressed/released,
+	 * edge indicates if the button has been pressed(1) or released(0)
+	 * edge is always 0 for the rotary encoder cw/ccw bits  */
+	void (*inp_cb) (uint16_t flags, uint16_t edge);
 } input_conf_t;
 
 void input_init(void);
