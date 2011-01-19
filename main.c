@@ -102,6 +102,7 @@ const sric_conf_t sric_conf = {
         .rx_resp = sric_gw_sric_rx_resp,
 	.error = NULL,
 	.token_drv = &token_dir_drv,
+	.promisc_rx = sric_gw_sric_promisc_rx,
 };
 
 const token_dir_conf_t token_dir_conf = {
