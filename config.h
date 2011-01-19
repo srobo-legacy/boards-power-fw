@@ -10,7 +10,7 @@
 #define SCHED_DIV 8000
 
 /* Size of the queue for schedule tasks */
-#define SCHED_QUEUE_SIZE 4
+#define SCHED_QUEUE_SIZE 8
 
 /* Whether the PIEZO should be enabled */
 #define PIEZO_ENABLED 1
