@@ -181,6 +181,8 @@ int main(void) {
 	//power_bb_enable();
 	//power_bl_enable();
 
-
-	while(1);
+	while (1) {
+		sric_poll();
+		hostser_poll();
+	}
 }
