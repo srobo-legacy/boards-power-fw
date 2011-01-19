@@ -95,8 +95,10 @@ const sric_conf_t sric_conf = {
 	.txen_port = &P3OUT,
 	.txen_mask = (1<<0),
 
-        /* Send received frames to the gateway */
-        .rx_cmd = sric_gw_sric_rxcmd,
+	/* Incoming (from sric) frames will be routed to the gateway because
+	 * we're building in "PROMISC" mode, the sric fsm should receive frames
+	 * for the power board device though */
+        .rx_cmd = sric_client_rx,
         .rx_resp = sric_gw_sric_rx_resp,
 	.error = NULL,
 	.token_drv = &token_dir_drv,
