@@ -97,8 +97,8 @@ const sric_conf_t sric_conf = {
 
         /* Send received frames to the gateway */
         .rx_cmd = sric_gw_sric_rxcmd,
-        .rx_resp = sric_gw_sric_rxresp,
-	.error = sric_gw_sric_err,
+        .rx_resp = sric_gw_sric_rx_resp,
+	.error = NULL,
 	.token_drv = &token_dir_drv,
 };
 
