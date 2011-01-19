@@ -156,9 +156,6 @@ void init_sric(void) {
 	input_conf.inp_cb = NULL;
 
 	eint();
-
-	while (1)
-		;
 }
 
 int main(void) {
