@@ -152,8 +152,8 @@ void init_sric(void) {
 
 	eint();
 
-	/* Kick-off that bus */
-	sric_gw_init_bus();
+	while (1)
+		;
 }
 
 int main(void) {
