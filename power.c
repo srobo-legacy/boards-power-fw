@@ -22,6 +22,7 @@
 #define BL_EN_PIN    (1<<1)
 /* BB 5V rail enable line is active low */
 #define BB_EN_PIN    (1<<2)
+#define BB_REGEN_PIN (1<<5)
 
 void power_init(void) {
 	P5OUT &= ~(MOTOR_EN_PIN | BL_EN_PIN);
@@ -48,4 +49,8 @@ void power_bb_enable(void) {
 }
 void power_bb_disable(void) {
 	P5OUT |= BB_EN_PIN;
+}
+
+bool power_bb_status(void) {
+	return P2IN & BB_REGEN_PIN;
 }
