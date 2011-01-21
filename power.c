@@ -26,7 +26,10 @@
 
 void power_init(void) {
 	P5OUT &= ~(MOTOR_EN_PIN | BL_EN_PIN);
-	P5OUT |= BB_EN_PIN;
+	if (power_bb_status())
+		P5OUT &= ~BB_EN_PIN; /* Leave BB powered on */
+	else
+		P5OUT |= BB_EN_PIN; /* Prevent BB from being powered for now */
 	P5DIR |= MOTOR_EN_PIN | BL_EN_PIN | BB_EN_PIN;
 }
 
