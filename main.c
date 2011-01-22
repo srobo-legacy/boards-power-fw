@@ -34,6 +34,11 @@
 #include "libsric/token-dir.h"
 #include "libsric/sric-client.h"
 
+bool run_cb(void* ud);
+void run(void);
+
+volatile bool run_flag;
+
 piezo_config_t piezo_config = {
 	.buf_low = NULL,
 };
@@ -42,6 +47,12 @@ input_conf_t input_conf = {
 	/* This should not be set to the SRIC function
 	 * until after POST */
 	.inp_cb = NULL,
+};
+
+sched_task_t run_task = {
+	/* Start everything running after 1.5s */
+	.t = 1500,
+	.cb = run_cb,
 };
 
 const usart_t usart_config[2] = {
@@ -173,6 +184,13 @@ int main(void) {
 
 	init_sric();
 
+	/* Start running the board's normal functions */
+	sched_add(&run_task);
+	while (!run_flag);
+	run();
+}
+
+void run(void) {
 	power_motor_enable();
 	//power_bb_enable();
 	//power_bl_enable();
@@ -181,4 +199,9 @@ int main(void) {
 		sric_poll();
 		hostser_poll();
 	}
+}
+
+bool run_cb(void* ud) {
+	run_flag = true;
+	return false;
 }
