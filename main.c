@@ -173,8 +173,6 @@ int main(void) {
 
 	init_sric();
 
-	led_set(0, 1);
-	piezo_beep();
 	power_motor_enable();
 	//power_bb_enable();
 	//power_bl_enable();
