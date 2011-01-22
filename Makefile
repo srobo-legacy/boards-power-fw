@@ -34,7 +34,7 @@ depend: *.c
 .PHONY: clean ${SUBDIRS} flash
 
 flash: power
-	mspdebug uif -j -d ${UIF_TTY} "prog $<"
+	mspdebug uif -j -d ${UIF_TTY} -n "prog $<"
 
 clean:
 	-rm -f power power.map depend *.o
