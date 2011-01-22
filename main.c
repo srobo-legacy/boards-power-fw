@@ -192,8 +192,8 @@ int main(void) {
 
 void run(void) {
 	power_motor_enable();
-	//power_bb_enable();
-	//power_bl_enable();
+	power_bb_enable();
+	power_bl_enable();
 
 	while (1) {
 		sric_poll();
