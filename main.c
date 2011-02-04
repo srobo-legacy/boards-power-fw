@@ -49,7 +49,7 @@ input_conf_t input_conf = {
 	.inp_cb = NULL,
 };
 
-sched_task_t run_task = {
+static const sched_task_t run_task = {
 	/* Start everything running after 1.5s */
 	.t = 1500,
 	.cb = run_cb,
