@@ -106,9 +106,8 @@ const sric_conf_t sric_conf = {
 	.txen_port = &P3OUT,
 	.txen_mask = (1<<0),
 
-	/* Incoming (from sric) frames will be routed to the gateway because
-	 * we're building in "PROMISC" mode, the sric fsm should receive frames
-	 * for the power board device though */
+	/* Incoming frames from the sric bus are routed to the gateway.
+	 * The gateway will send them to the sric client if appropriate. */
         .rx_cmd = sric_client_rx,
         .rx_resp = sric_gw_sric_rx_resp,
 	.error = NULL,
