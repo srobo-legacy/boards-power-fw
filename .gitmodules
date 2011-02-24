@@ -4,3 +4,6 @@
 [submodule "libsric"]
 	path = libsric
 	url = ../msp/libsric
+[submodule "flash430"]
+	path = flash430
+	url = ../msp/flash430.git

@@ -1,4 +1,5 @@
-power
+power-bottom
+power-top
 power.map
 *.o
 depend

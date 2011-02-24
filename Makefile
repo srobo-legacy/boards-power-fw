@@ -7,23 +7,30 @@ CFLAGS += -include `pwd`/config.h
 LDFLAGS := -Wl,-Map=power.map
 
 O_FILES = main.o power.o piezo.o monitor.o input.o post.o
-SUBDIRS = drivers libsric
+SUBDIRS = drivers libsric flash430
 
 LDFLAGS += -Ldrivers -ldrivers
 LDFLAGS += -Llibsric -lsric
+LDFLAGS += -Lflash430 -lflash430
 
-all: power
+all: power-bottom power-top
 
 include depend
 
-power: ${O_FILES} ${SUBDIRS}
-	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS}
+power-bottom: ${O_FILES} ${SUBDIRS}
+	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS} -Wl,-T,flash430/lkr/${ARCH}-bottom.x
+
+power-top: ${O_FILES} ${SUBDIRS}
+	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS} -Wl,-T,flash430/lkr/${ARCH}-top.x
 
 drivers:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
 
 libsric:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS} -I`pwd`" LDFLAGS="${LDFLAGS}"
+
+flash430:
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
 
 depend: *.c
 	rm -f depend
@@ -33,11 +40,11 @@ depend: *.c
 
 .PHONY: clean ${SUBDIRS} flash
 
-flash: power
+flash: power-bottom
 	mspdebug uif -j -d ${UIF_TTY} -n "prog $<"
 
 clean:
-	-rm -f power power.map depend *.o
+	-rm -f power-{bottom-top} power.map depend *.o
 	for d in ${SUBDIRS} ; do\
 		${MAKE} -C $$d clean ; \
 	done ;
