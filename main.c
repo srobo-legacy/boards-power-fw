@@ -194,6 +194,7 @@ void run(void) {
 	while (1) {
 		sric_poll();
 		hostser_poll();
+		sric_flash_poll();
 	}
 }
 
