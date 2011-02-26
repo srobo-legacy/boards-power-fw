@@ -6,7 +6,7 @@ CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
 CFLAGS += -include `pwd`/config.h
 LDFLAGS := -Wl,-Map=power.map
 
-O_FILES = main.o power.o piezo.o monitor.o input.o post.o
+O_FILES = main.o power.o piezo.o monitor.o input.o post.o cmds.o
 SUBDIRS = drivers libsric flash430
 
 LDFLAGS += -Ldrivers -ldrivers

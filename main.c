@@ -131,9 +131,6 @@ const sric_client_conf_t sric_client_conf = {
 	.devclass = SRIC_CLASS_POWER,
 };
 
-const uint8_t sric_cmd_num = 0;
-const sric_cmd_t sric_commands[0];
-
 void init_board(void) {
 	leds_init();
 
