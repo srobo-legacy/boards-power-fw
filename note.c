@@ -55,7 +55,7 @@ bool
 note_trigger_send(void *ud)
 {
 
-	note_send_enable = true;
+	note_send_trigger = true;
 	return true;
 }
 
