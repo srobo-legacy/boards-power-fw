@@ -18,7 +18,12 @@
 #include "cmds.h"
 #include "flash430/sric-flash.h"
 
+static uint8_t enable_notes = 0;
+
+uint8_t sric_enable_input_notes( const sric_if_t *iface );
+
 const sric_cmd_t sric_commands[] = {
+	{sric_enable_input_notes},
 	{sric_flashr_fw_ver},
 	{sric_flashw_fw_chunk},
 	{sric_flashr_fw_next},
@@ -27,3 +32,14 @@ const sric_cmd_t sric_commands[] = {
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
+
+uint8_t
+sric_enable_input_notes( const sric_if_t *iface )
+{
+
+	if (iface->rxbuf[SRIC_LEN] != 2)
+		return 0;
+
+	enable_notes = iface->rxbuf[SRIC_DATA+1];
+	return 0;
+}
