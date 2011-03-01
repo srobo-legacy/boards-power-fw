@@ -27,6 +27,7 @@
 #include "monitor.h"
 #include "input.h"
 #include "post.h"
+#include "note.h"
 #include "drivers/usart.h"
 #include "libsric/sric.h"
 #include "libsric/hostser.h"
@@ -161,7 +162,7 @@ void init_sric(void) {
 
 	/* Eventually this will be a function to send notes
 	 * to the BeagleBoard */
-	input_conf.inp_cb = NULL;
+	input_conf.inp_cb = note_recv_input;
 
 	eint();
 }
@@ -195,6 +196,7 @@ void run(void) {
 		sric_poll();
 		hostser_poll();
 		sric_flash_poll();
+		note_poll();
 	}
 }
 
