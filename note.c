@@ -73,11 +73,12 @@ note_poll()
 		/* We have some pressed flags and current edges to send */
 		sric_if.tx_lock();
 		sric_if.txbuf[SRIC_DEST] = 1;	/* Director */
-		sric_if.txbuf[SRIC_LEN] = 4;	/* Len of flags and edges */
-		sric_if.txbuf[SRIC_DATA] = sampled_flags & 0xFF;
-		sric_if.txbuf[SRIC_DATA+1] = sampled_flags >> 8;
-		sric_if.txbuf[SRIC_DATA+2] = last_edges & 0xFF;
-		sric_if.txbuf[SRIC_DATA+3] = last_edges >> 8;
+		sric_if.txbuf[SRIC_LEN] = 5;	/* NoteID, flags and edges */
+		sric_if.txbuf[SRIC_DATA] = 0;	/* Note 0 */
+		sric_if.txbuf[SRIC_DATA+1] = sampled_flags & 0xFF;
+		sric_if.txbuf[SRIC_DATA+2] = sampled_flags >> 8;
+		sric_if.txbuf[SRIC_DATA+3] = last_edges & 0xFF;
+		sric_if.txbuf[SRIC_DATA+4] = last_edges >> 8;
 
 		/* Don't expect an ack for notes - we don't need it. It will,
 		 * however, turn up and be ignored */
