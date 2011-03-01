@@ -14,7 +14,7 @@ bool note_trigger_send(void *ud);
 static volatile uint16_t inp_flags;
 static volatile uint16_t last_edges;
 static volatile bool note_send_trigger;
-static bool note_send_enable;
+static bool note_send_enable = false;
 
 static const sched_task_t note_trigger = {
 	.t = NOTE_PERIOD,
