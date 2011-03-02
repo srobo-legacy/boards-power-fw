@@ -43,12 +43,11 @@ note_enable(uint8_t enable)
 void
 note_recv_input(uint16_t flags, uint16_t edge)
 {
-        /* See input.h: flags register button presses, edge determines their
-	 * current states. We store all presses to be sent to the BB, and
-	 * the most recent pressed state. These are sent raw to the BB at
-	 * intervals: there's no point decoding them here */
-        inp_flags |= flags;
-        last_edges = edge;
+
+	/* Very simple situation: we register a button press when it gets
+	 * released */
+	inp_flags |= (flags & ~edge);
+
         return;
 }
 
