@@ -6,6 +6,7 @@
 #include "drivers/sched.h"
 
 #include "libsric/sric.h"
+#include "libsric/sric-gw.h"
 
 #include "note.h"
 
@@ -71,17 +72,17 @@ note_poll()
 		eint();
 
 		/* We have some pressed flags and current edges to send */
-		sric_if.tx_lock();
-		sric_if.txbuf[SRIC_DEST] = 1;	/* Director */
-		sric_if.txbuf[SRIC_SRC] = sric_addr;
-		sric_if.txbuf[SRIC_LEN] = 5;	/* NoteID, flags and edges */
-		sric_if.txbuf[SRIC_DATA] = 0;	/* Note 0 */
-		sric_if.txbuf[SRIC_DATA+1] = sampled_flags & 0xFF;
-		sric_if.txbuf[SRIC_DATA+2] = sampled_flags >> 8;
-		sric_if.txbuf[SRIC_DATA+3] = last_edges & 0xFF;
-		sric_if.txbuf[SRIC_DATA+4] = last_edges >> 8;
+		gw_sric_if.tx_lock();
+		gw_sric_if.txbuf[SRIC_DEST] = 1;/* Director */
+		gw_sric_if.txbuf[SRIC_SRC] = sric_addr;
+		gw_sric_if.txbuf[SRIC_LEN] = 5; /* NoteID, flags and edges */
+		gw_sric_if.txbuf[SRIC_DATA] = 0;/* Note 0 */
+		gw_sric_if.txbuf[SRIC_DATA+1] = sampled_flags & 0xFF;
+		gw_sric_if.txbuf[SRIC_DATA+2] = sampled_flags >> 8;
+		gw_sric_if.txbuf[SRIC_DATA+3] = last_edges & 0xFF;
+		gw_sric_if.txbuf[SRIC_DATA+4] = last_edges >> 8;
 
-		sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, true);
+		gw_sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, true);
 	} else {
 		eint();
 	}
