@@ -73,6 +73,7 @@ note_poll()
 		/* We have some pressed flags and current edges to send */
 		sric_if.tx_lock();
 		sric_if.txbuf[SRIC_DEST] = 1;	/* Director */
+		sric_if.txbuf[SRIC_SRC] = sric_addr;
 		sric_if.txbuf[SRIC_LEN] = 5;	/* NoteID, flags and edges */
 		sric_if.txbuf[SRIC_DATA] = 0;	/* Note 0 */
 		sric_if.txbuf[SRIC_DATA+1] = sampled_flags & 0xFF;
