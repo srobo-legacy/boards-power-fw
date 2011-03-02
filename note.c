@@ -81,9 +81,7 @@ note_poll()
 		sric_if.txbuf[SRIC_DATA+3] = last_edges & 0xFF;
 		sric_if.txbuf[SRIC_DATA+4] = last_edges >> 8;
 
-		/* Don't expect an ack for notes - we don't need it. It will,
-		 * however, turn up and be ignored */
-		sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, false);
+		sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, true);
 	} else {
 		eint();
 	}
