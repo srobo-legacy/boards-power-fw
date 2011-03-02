@@ -170,6 +170,7 @@ static void input_but_fsm(uint8_t n) {
                         input_but_state[n] = S_UP;
                         field_set16(IES, buttons[n]);
                         input_cb_flags |= 1<<n;
+			input_cb_edges &= ~(1<<n);
                 }
                 break;
         }
