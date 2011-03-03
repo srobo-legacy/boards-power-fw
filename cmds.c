@@ -16,12 +16,14 @@
 */
 
 #include "cmds.h"
+#include "leds.h"
 #include "note.h"
 #include "piezo.h"
 #include "flash430/sric-flash.h"
 
 uint8_t sric_enable_input_notes( const sric_if_t *iface );
 uint8_t sric_play_piezo( const sric_if_t *iface );
+uint8_t sric_set_leds( const sric_if_t *iface );
 
 const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_ver},
@@ -31,6 +33,7 @@ const sric_cmd_t sric_commands[] = {
 	{sric_flashw_confirm},
 	{sric_enable_input_notes},
 	{sric_play_piezo},
+	{sric_set_leds},
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
@@ -62,5 +65,20 @@ sric_play_piezo( const sric_if_t *iface )
 	piezo_play((piezo_note_t *)&iface->rxbuf[SRIC_DATA+2],
 				piezo_input_ctl & 0xF,
 				(piezo_input_ctl & 0x80) ? true : false);
+	return 0;
+}
+
+uint8_t
+sric_set_leds( const sric_if_t *iface )
+{
+	uint8_t leds;
+
+	if (iface->rxbuf[SRIC_LEN] != 2)
+		return 0;
+
+	leds = iface->rxbuf[SRIC_DATA+1];
+	uled_set(0, leds & 1);
+	uled_set(1, leds & 2);
+	uled_set(2, leds & 4);
 	return 0;
 }
