@@ -21,9 +21,9 @@
 #include "piezo.h"
 #include "flash430/sric-flash.h"
 
-uint8_t sric_enable_input_notes( const sric_if_t *iface );
-uint8_t sric_play_piezo( const sric_if_t *iface );
-uint8_t sric_set_leds( const sric_if_t *iface );
+uint8_t sric_enable_input_notes(const sric_if_t *iface);
+uint8_t sric_play_piezo(const sric_if_t *iface);
+uint8_t sric_set_leds(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_ver},
@@ -39,7 +39,7 @@ const sric_cmd_t sric_commands[] = {
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
 
 uint8_t
-sric_enable_input_notes( const sric_if_t *iface )
+sric_enable_input_notes(const sric_if_t *iface)
 {
 
 	if (iface->rxbuf[SRIC_LEN] != 2)
@@ -50,7 +50,7 @@ sric_enable_input_notes( const sric_if_t *iface )
 }
 
 uint8_t
-sric_play_piezo( const sric_if_t *iface )
+sric_play_piezo(const sric_if_t *iface)
 {
 	uint8_t piezo_input_ctl;
 
@@ -69,7 +69,7 @@ sric_play_piezo( const sric_if_t *iface )
 }
 
 uint8_t
-sric_set_leds( const sric_if_t *iface )
+sric_set_leds(const sric_if_t *iface)
 {
 	uint8_t leds;
 
