@@ -13,30 +13,15 @@
 bool note_trigger_send(void *ud);
 
 static volatile uint16_t inp_flags;
-static volatile uint16_t last_edges;
+static volatile uint16_t inp_edges;
 static volatile bool note_send_trigger;
 static bool note_send_enable = false;
-
-static const sched_task_t note_trigger = {
-	.t = NOTE_PERIOD,
-	.cb = note_trigger_send
-};
 
 void
 note_enable(uint8_t enable)
 {
-	bool old;
 
-	old = note_send_enable;
-
-	if (enable == 0 && old) {
-		note_send_enable = false;
-		sched_rem(&note_trigger);
-	} else if (enable != 0 && !old) {
-		note_send_enable = true;
-		sched_add(&note_trigger);
-	}
-
+	note_send_enable = enable;
 	return;
 }
 
@@ -44,19 +29,11 @@ void
 note_recv_input(uint16_t flags, uint16_t edge)
 {
 
-	/* Very simple situation: we register a button press when it gets
-	 * released */
-	inp_flags |= (flags & ~edge);
+	inp_flags = flags;
+	inp_edges = edge;
+	note_send_trigger = true;
 
         return;
-}
-
-bool
-note_trigger_send(void *ud)
-{
-
-	note_send_trigger = true;
-	return true;
 }
 
 void
@@ -66,9 +43,13 @@ note_poll()
 	dint();
 	if (note_send_enable && note_send_trigger) {
 		uint16_t sampled_flags = inp_flags;
+		uint16_t sampled_edges = inp_edges;
 		inp_flags = 0;
 		note_send_trigger = false;
 		eint();
+
+		if (sampled_flags == 0)
+			return;
 
 		/* We have some pressed flags and current edges to send */
 		gw_sric_if.tx_lock();
@@ -78,8 +59,8 @@ note_poll()
 		gw_sric_if.txbuf[SRIC_DATA] = 0;/* Note 0 */
 		gw_sric_if.txbuf[SRIC_DATA+1] = sampled_flags & 0xFF;
 		gw_sric_if.txbuf[SRIC_DATA+2] = sampled_flags >> 8;
-		gw_sric_if.txbuf[SRIC_DATA+3] = last_edges & 0xFF;
-		gw_sric_if.txbuf[SRIC_DATA+4] = last_edges >> 8;
+		gw_sric_if.txbuf[SRIC_DATA+3] = sampled_edges & 0xFF;
+		gw_sric_if.txbuf[SRIC_DATA+4] = sampled_edges >> 8;
 
 		gw_sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, true);
 	} else {
