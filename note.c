@@ -15,6 +15,8 @@ bool note_trigger_send(void *ud);
 static volatile uint16_t inp_flags;
 static volatile uint16_t inp_edges;
 static volatile bool note_send_trigger;
+static volatile bool send_piezo_note;
+static volatile uint8_t spare_piezo_notes;
 static bool note_send_enable = false;
 
 void
@@ -34,6 +36,16 @@ note_recv_input(uint16_t flags, uint16_t edge)
 	note_send_trigger = true;
 
         return;
+}
+
+void
+piezo_send_piezo_note(uint8_t free_space)
+{
+	int8_t spaces;
+
+	spare_piezo_notes = free_space;
+	send_piezo_note = true;
+	return;
 }
 
 void
@@ -65,6 +77,19 @@ note_poll()
 		gw_sric_if.tx_cmd_start(SRIC_OVERHEAD + 4, true);
 	} else {
 		eint();
+	}
+
+	if (send_piezo_note) {
+		gw_sric_if.tx_lock();
+
+		gw_sric_if.txbuf[SRIC_DEST] = 1;
+		gw_sric_if.txbuf[SRIC_SRC] = sric_addr;
+		gw_sric_if.txbuf[SRIC_LEN] = 2;
+
+		gw_sric_if.txbuf[SRIC_DATA] = 1;
+		gw_sric_if.txbuf[SRIC_DATA+1] = spare_piezo_notes;
+
+		gw_sric_if.tx_cmd_start(6, true);
 	}
 
 	return;

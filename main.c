@@ -162,7 +162,7 @@ void init_sric(void) {
 
 	/* Configure callbacks that issue notifications */
 	input_conf.inp_cb = note_recv_input;
-	piezo_config.buf_low = piezo_send_buf_low_note;
+	piezo_config.buf_low = piezo_send_piezo_note;
 
 	eint();
 }

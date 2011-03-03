@@ -123,7 +123,11 @@ bool piezo_play_cb(void *p) {
 	if (requires_notif &&
 	    (piezo_buffer.out + 5) % PIEZO_BUFFER_LEN  == piezo_buffer.in &&
 	    piezo_config.buf_low) {
-		piezo_config.buf_low();
+		uint8_t spaces = piezo_buffer.in - piezo_buffer.out;
+		if (spaces < 0)
+			spaces += PIEZO_BUFFER_LEN;
+
+		piezo_config.buf_low(spaces);
 	}
 	return playing;
 }
@@ -160,27 +164,4 @@ void piezo_beep_pattern(char *pattern) {
 	 * not originated from this function but it shouldn't matter too much.
 	 */
 	while(playing);
-}
-
-void
-piezo_send_buf_low_note(void)
-{
-	int8_t spaces;
-
-	gw_sric_if.tx_lock();
-
-	gw_sric_if.txbuf[SRIC_DEST] = 1;/* Director. Could make this dynamic? */
-	gw_sric_if.txbuf[SRIC_SRC] = sric_addr;
-	gw_sric_if.txbuf[SRIC_LEN] = 2;
-
-	gw_sric_if.txbuf[SRIC_DATA] = 1; /* Note identifier */
-
-	/* Calculate free slots in buffer */
-	spaces = piezo_buffer.in - piezo_buffer.out;
-	if (spaces < 0)
-		spaces += PIEZO_BUFFER_LEN;
-	gw_sric_if.txbuf[SRIC_DATA+1] = spaces;
-
-	gw_sric_if.tx_cmd_start(6, true);
-	return;
 }
