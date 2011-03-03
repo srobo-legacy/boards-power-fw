@@ -23,7 +23,7 @@
 /* A variable of the following type called 'piezo_config' must be linked in */
 typedef struct {
 	/* Called when the playback buffer only has 5 notes remaining */
-	void (*buf_low) (free_space);
+	void (*buf_low) (uint8_t free_space);
 } piezo_config_t;
 
 typedef struct {
