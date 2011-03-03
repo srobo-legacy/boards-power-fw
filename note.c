@@ -41,8 +41,6 @@ note_recv_input(uint16_t flags, uint16_t edge)
 void
 piezo_send_piezo_note(uint8_t free_space)
 {
-	int8_t spaces;
-
 	spare_piezo_notes = free_space;
 	send_piezo_note = true;
 	return;
