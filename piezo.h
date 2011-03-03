@@ -51,4 +51,8 @@ void piezo_beep(void);
  * A delay of 500ms is added between beeps. Maximum of 8 beeps. */
 void piezo_beep_pattern(char *pattern);
 
+/* Sends a notification to the bus director indicating that the piezo
+ * buffer is low (and how many notes the board can accept right now */
+void piezo_send_buf_low_note(void);
+
 #endif /* __PIEZO_H */
