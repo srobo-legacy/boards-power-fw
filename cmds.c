@@ -65,7 +65,8 @@ sric_play_piezo(const sric_if_t *iface)
 		return 0;
 
 	piezo_input_ctl = iface->rxbuf[SRIC_DATA+1];
-	if (iface->rxbuf[SRIC_LEN] < 2 + (piezo_input_ctl & 0xF))
+	if (iface->rxbuf[SRIC_LEN] < 2 + (piezo_input_ctl & 0xF) *
+						sizeof(piezo_note_t))
 		/* Insufficient data for buffer */
 		return 0;
 
