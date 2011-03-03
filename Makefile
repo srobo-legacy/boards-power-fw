@@ -2,7 +2,7 @@ ARCH = msp430x167
 CC := msp430-gcc
 UIF_TTY = /dev/ttyUSB0
 
-CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
+CFLAGS := -g -mmcu=${ARCH} -Wall -Werror -O3 -std=gnu99
 CFLAGS += -include `pwd`/config.h
 LDFLAGS := -Wl,-Map=power.map
 
