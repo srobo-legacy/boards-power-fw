@@ -38,6 +38,8 @@ const sric_cmd_t sric_commands[] = {
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
 
+/* Receives a single byte of data: if nonzero then enable input notifications.
+ * if zero, disable. */
 uint8_t
 sric_enable_input_notes(const sric_if_t *iface)
 {
@@ -49,6 +51,11 @@ sric_enable_input_notes(const sric_if_t *iface)
 	return 0;
 }
 
+/* Receives a control byte and up to 12 consecutive piezo_note_t's. Control
+ * byte lower nibble describes the number of piezo_note_t's that are in this
+ * frame, top nibble is for flags. Only flag currently used is the topmost,
+ * which indicates whether a notification should be sent when the piezo
+ * buffer gets low */
 uint8_t
 sric_play_piezo(const sric_if_t *iface)
 {
@@ -68,6 +75,8 @@ sric_play_piezo(const sric_if_t *iface)
 	return 0;
 }
 
+/* Receives a single byte: bits 0, 1 and 2 of that byte indicate whether the
+ * corresponding user LED should be set on or off */
 uint8_t
 sric_set_leds(const sric_if_t *iface)
 {
