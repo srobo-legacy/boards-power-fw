@@ -123,7 +123,7 @@ bool piezo_play_cb(void *p) {
 	if (requires_notif &&
 	    (piezo_buffer.out + 5) % PIEZO_BUFFER_LEN  == piezo_buffer.in &&
 	    piezo_config.buf_low) {
-		uint8_t spaces = piezo_buffer.in - piezo_buffer.out;
+		int16_t spaces = piezo_buffer.in - piezo_buffer.out;
 		if (spaces < 0)
 			spaces += PIEZO_BUFFER_LEN;
 
