@@ -35,7 +35,7 @@ note_recv_input(uint16_t flags, uint16_t edge)
 	inp_edges = edge;
 	note_send_trigger = true;
 
-        return;
+	return;
 }
 
 void
