@@ -59,20 +59,29 @@ sric_enable_input_notes(const sric_if_t *iface)
 uint8_t
 sric_play_piezo(const sric_if_t *iface)
 {
-	uint8_t piezo_input_ctl;
+	uint8_t piezo_input_ctl, num_notes, i;
 
 	if (iface->rxbuf[SRIC_LEN] < 2)
 		return 0;
 
 	piezo_input_ctl = iface->rxbuf[SRIC_DATA+1];
-	if (iface->rxbuf[SRIC_LEN] < 2 + (piezo_input_ctl & 0xF) *
-						sizeof(piezo_note_t))
+	num_notes = piezo_input_ctl & 0xF;
+
+	if (iface->rxbuf[SRIC_LEN] < 2 + num_notes * 5)
 		/* Insufficient data for buffer */
 		return 0;
 
-	piezo_play((piezo_note_t *)&iface->rxbuf[SRIC_DATA+2],
-				piezo_input_ctl & 0xF,
-				(piezo_input_ctl & 0x80) ? true : false);
+	for( i=0; i<num_notes; i++ ) {
+		piezo_note_t p;
+		uint8_t *note = iface->rxbuf + SRIC_DATA + 2 + (i*5);
+
+		p.f = (((uint16_t)note[0]) << 8) | note[1];
+		p.d = (((uint16_t)note[2]) << 8) | note[3];
+		p.v = note[4];
+
+		piezo_play( &p, 1, (piezo_input_ctl & 0x80) ? true : false);
+	}
+
 	return 0;
 }
 
