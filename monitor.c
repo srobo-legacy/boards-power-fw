@@ -30,9 +30,9 @@
 #define VPUMP  (1<<2)
 #define VMOTOR (1<<3)
 
-#define field_set(x, val, mask) do { x &= ~mask; x |= val; } while(0)
 #define CDETECT (1<<7)
-#define SET_CDETECT_EDGE(e) field_set(P2IES, e ? CDETECT:0, CDETECT)
+#define SET_CDETECT_EDGE(e) do { if (e) P2IES |= CDETECT; \
+                                 else P2IES &= ~CDETECT; } while(0)
 
 uint16_t batt_voltage=0;
 int16_t batt_current=0;
