@@ -36,6 +36,8 @@
 #include "libsric/token-dir.h"
 #include "libsric/sric-client.h"
 
+#define reset_wdt() do { WDTCTL = WDTCNTCL | WDTPW; } while(0)
+
 bool run_cb(void* ud);
 void run(void);
 
@@ -169,8 +171,8 @@ void init_sric(void) {
 }
 
 int main(void) {
-	/* Disable watchdog timer */
-	WDTCTL = WDTHOLD | WDTPW;
+	/* Enable watchdog timer */
+	WDTCTL = WDTPW;
 
 	init_board();
 
@@ -184,16 +186,15 @@ int main(void) {
 
 	/* Start running the board's normal functions */
 	sched_add(&run_task);
-	while (!run_flag);
 	run();
 }
 
 void run(void) {
-	power_motor_enable();
-	power_bb_enable();
-	power_bl_enable();
 
 	while (1) {
+		reset_wdt();
+		if (!run_flag)
+			continue;
 		sric_poll();
 		hostser_poll();
 		sric_gw_poll();
@@ -203,6 +204,10 @@ void run(void) {
 }
 
 bool run_cb(void* ud) {
+	power_motor_enable();
+	power_bb_enable();
+	power_bl_enable();
+
 	run_flag = true;
 	return false;
 }

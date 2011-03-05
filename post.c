@@ -23,6 +23,8 @@
 #include "power.h"
 #include "leds.h"
 
+#define reset_wdt() do { WDTCTL = WDTCNTCL | WDTPW; } while(0)
+
 /* Decalred in main.c
  * Used here to hook into the input module callback */
 extern input_conf_t input_conf;
@@ -63,7 +65,9 @@ static void post_test_mode(void) {
 	piezo_play(enter_test_mode, 6, false);
 	sched_add(&flash_task);
 
-	while(1);
+	while(1) {
+		reset_wdt();
+	}
 }
 
 /* Pressing a push button causes the LED next to it to toggle.
