@@ -23,6 +23,7 @@
 #include "drivers/pinint.h"
 #include "drivers/sched.h"
 #include "leds.h"
+#include "power.h"
 
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
@@ -41,10 +42,11 @@ bool charger_present = false;
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
+#define BATTERY_FLAT_VOLTAGE 1911 /* 7V */
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
-bool monitor_charger_check(void* ud);
+bool monitor_check(void* ud);
 
 static const pinint_conf_t cdetect_int = {
 	.mask = CDETECT << 8,
@@ -65,9 +67,8 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 	}
 }
 
-/* Check to see if the charger is present and charging the battery
- * every 1 second */
-static sched_task_t charger_check_task = {.cb=monitor_charger_check, .t=1000};
+/* Check the state of the voltage rails and charger ever second */
+static sched_task_t check_task = {.cb=monitor_check, .t=1000};
 
 void monitor_init(void) {
 	/* Init ADC stuff */
@@ -114,7 +115,7 @@ void monitor_init(void) {
 	P2IFG &= ~CDETECT;
 	P2IE  |=  CDETECT;
 
-	sched_add(&charger_check_task);
+	sched_add(&check_task);
 }
 
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
@@ -136,13 +137,14 @@ bool monitor_cdetect_task_cb(void *ud) {
 	} else {
 		SET_CDETECT_EDGE(IO_IESPIN_RISING);
 	}
-	monitor_charger_check(NULL);
+	monitor_check(NULL);
 	cdetect_waiting = false;
 	return false;
 }
 
-bool monitor_charger_check(void *ud) {
-	/* Check to see if the thing is charging */
+bool monitor_check(void *ud) {
+	/* --- CHARGER DETECTION --- */
+
 	bool charger_present_tmp;
 
 	if (P2IN & CDETECT) {
@@ -172,5 +174,16 @@ bool monitor_charger_check(void *ud) {
 	}
 
 	charger_present = charger_present_tmp;
+
+
+	/* --- VOLTAGE RAIL MONITORING --- */
+	if (batt_voltage < BATTERY_FLAT_VOLTAGE) {
+		/* Perform emergency shutdown */
+		power_motor_disable();
+		power_bl_disable();
+		power_bb_disable();
+		while(1); /* Battery flat */
+	}
+
 	return true;
 }
