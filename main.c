@@ -174,6 +174,9 @@ int main(void) {
 	/* Enable watchdog timer */
 	WDTCTL = WDTPW;
 
+	/* Setup the SVS to reset if the supply voltage drops below 2.5V */
+	SVSCTL |= VLD_6 | PORON;
+
 	init_board();
 
 	/* Run POST. Requires interrupts to be enabled but they
