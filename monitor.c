@@ -66,8 +66,8 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 }
 
 /* Check to see if the charger is present and charging the battery
- * every 5 seconds */
-static sched_task_t charger_check_task = {.cb=monitor_charger_check, .t=5000};
+ * every 1 second */
+static sched_task_t charger_check_task = {.cb=monitor_charger_check, .t=1000};
 
 void monitor_init(void) {
 	/* Init ADC stuff */
