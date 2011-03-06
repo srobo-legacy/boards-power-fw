@@ -191,7 +191,7 @@ bool monitor_check(void *ud) {
 
 	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
-		power_motor_disable();
+		power_motor_disable(POWER_MOTOR_CHARGER);
 		power_bl_disable();
 		power_bb_disable();
 		while(1); /* Battery flat */
@@ -200,7 +200,7 @@ bool monitor_check(void *ud) {
 	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE) {
 		/* The battery is pretty much flat, turn off the motor rail.
 		 * However keep the BeagleBoard and LCD powered. */
-		power_motor_disable();
+		power_motor_disable(POWER_MOTOR_CHARGER);
 		batt_flat = true;
 	}
 
@@ -213,7 +213,7 @@ bool monitor_check(void *ud) {
 		}
 		/* The battery has been recharged to a suitable level */
 		if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE) {
-			power_motor_enable();
+			power_motor_enable(POWER_MOTOR_CHARGER);
 			batt_flat = false;
 			chrg_set(0);
 		}

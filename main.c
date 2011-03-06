@@ -207,7 +207,8 @@ void run(void) {
 }
 
 bool run_cb(void* ud) {
-	power_motor_enable();
+	/* REMOVE BEFORE SHIPPING */
+	power_motor_enable(POWER_MOTOR_CODE);
 	power_bb_enable();
 	power_bl_enable();
 
