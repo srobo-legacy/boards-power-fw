@@ -39,11 +39,13 @@ int16_t batt_current=0;
 uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
 bool charger_present = false;
+bool batt_flat = false;
 /* Used to calculate a moving average over 4 samples */
 uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
+#define BATTERY_FLAT_VOLTAGE 2594 /* 9.5V */
 #define BATTERY_VFLAT_VOLTAGE 1911 /* 7V */
 
 void monitor_cdetect_cb(uint16_t flags);
@@ -122,6 +124,7 @@ void monitor_init(void) {
 
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
 piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
+piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=3}};
 
 static sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
 static bool cdetect_waiting = false;
@@ -173,6 +176,7 @@ bool monitor_check(void *ud) {
 		/* Charger plugged in */
 		piezo_play(ch_in, 2, false);
 		chrg_set(1);
+		batt_flat = false;
 	}
 
 	charger_present = charger_present_tmp;
@@ -191,6 +195,22 @@ bool monitor_check(void *ud) {
 		power_bl_disable();
 		power_bb_disable();
 		while(1); /* Battery flat */
+	}
+
+	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE) {
+		/* The battery is pretty much flat, turn off the motor rail.
+		 * However keep the BeagleBoard and LCD powered. */
+		power_motor_disable();
+		batt_flat = true;
+	}
+
+	if (batt_flat && !charger_present) {
+		static uint8_t i = 3;
+		chrg_toggle();
+		if (i++ == 3) {
+			piezo_play(batt_flat_tune, 1, false);
+			i=0;
+		}
 	}
 
 	return true;
