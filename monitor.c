@@ -42,7 +42,7 @@ bool charger_present = false;
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
-#define BATTERY_FLAT_VOLTAGE 1911 /* 7V */
+#define BATTERY_VFLAT_VOLTAGE 1911 /* 7V */
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
@@ -177,7 +177,7 @@ bool monitor_check(void *ud) {
 
 
 	/* --- VOLTAGE RAIL MONITORING --- */
-	if (batt_voltage < BATTERY_FLAT_VOLTAGE) {
+	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
 		power_motor_disable();
 		power_bl_disable();
