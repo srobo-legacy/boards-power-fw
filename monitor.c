@@ -177,7 +177,6 @@ bool monitor_check(void *ud) {
 		/* Charger plugged in */
 		piezo_play(ch_in, 2, false);
 		chrg_set(1);
-		batt_flat = false;
 	}
 
 	charger_present = charger_present_tmp;
@@ -205,18 +204,18 @@ bool monitor_check(void *ud) {
 		batt_flat = true;
 	}
 
-	if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE && !charger_present) {
-		power_motor_enable();
-		batt_flat = false;
-		chrg_set(0);
-	}
-
 	if (batt_flat && !charger_present) {
 		static uint8_t i = 3;
 		chrg_toggle();
 		if (i++ == 3) {
 			piezo_play(batt_flat_tune, 1, false);
 			i=0;
+		}
+		/* The battery has been recharged to a suitable level */
+		if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE) {
+			power_motor_enable();
+			batt_flat = false;
+			chrg_set(0);
 		}
 	}
 
