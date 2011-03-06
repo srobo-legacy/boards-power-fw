@@ -56,12 +56,16 @@
 #define __led_set(led_out, led, x) do { if (x) led_out |= led; \
                                         else   led_out &= ~led; } while(0)
 
+#define __led_get(led_out, led) ((led_out) & (led))
+
 #define __led_toggle(led_out, led) do { led_out ^= led; } while(0)
 
 #define led_set(led, x)  __led_set(LED##led##_OUT, LED##led, x)
 #define uled_set(led, x) __led_set(ULED##led##_OUT, ULED##led, x)
 #define dbg_set(x)       __led_set(LED_DBG_OUT, LED_DBG, x)
 #define chrg_set(x)      __led_set(LED_CHRG_OUT, LED_CHRG, x)
+
+#define uled_get(led)    __led_get(ULED##led##_OUT, ULED##led)
 
 #define led_toggle(led)  __led_toggle(LED##led##_OUT, LED##led)
 #define uled_toggle(led) __led_toggle(ULED##led##_OUT, ULED##led)

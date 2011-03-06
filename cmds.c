@@ -26,6 +26,7 @@ uint8_t sric_enable_input_notes(const sric_if_t *iface);
 uint8_t sric_play_piezo(const sric_if_t *iface);
 uint8_t sric_set_leds(const sric_if_t *iface);
 uint8_t sric_motor_rail(const sric_if_t *iface);
+uint8_t sric_get_leds(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_ver},
@@ -37,6 +38,7 @@ const sric_cmd_t sric_commands[] = {
 	{sric_play_piezo},
 	{sric_set_leds},
 	{sric_motor_rail},
+	{sric_get_leds}
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
@@ -117,4 +119,23 @@ uint8_t sric_motor_rail(const sric_if_t *iface)
 		power_motor_disable(POWER_MOTOR_CODE);
 
 	return 0;
+}
+
+/* Takes no input, responds with one byte detailing the current user led
+ * configuration */
+uint8_t
+sric_get_leds(const sric_if_t *iface)
+{
+	uint8_t resp;
+
+	resp = 0;
+	if (uled_get(0) != 0)
+		resp |= 1;
+	if (uled_get(1) != 0)
+		resp |= 2;
+	if (uled_get(2) != 0)
+		resp |= 4;
+
+	iface->txbuf[SRIC_DATA] = resp;
+	return 1;
 }
