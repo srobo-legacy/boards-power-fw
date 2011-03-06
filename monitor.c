@@ -39,6 +39,8 @@ int16_t batt_current=0;
 uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
 bool charger_present = false;
+/* Used to calculate a moving average over 4 samples */
+uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
@@ -177,6 +179,12 @@ bool monitor_check(void *ud) {
 
 
 	/* --- VOLTAGE RAIL MONITORING --- */
+	uint16_t batt_voltage_ma = batt_voltage_ma_sum/4;
+	/* Only update the moving average when the charger isn't plugged in */
+	if (!charger_present)
+		batt_voltage_ma_sum = batt_voltage_ma_sum
+		                      + batt_voltage - batt_voltage_ma;
+
 	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
 		power_motor_disable();
