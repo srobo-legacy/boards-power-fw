@@ -33,7 +33,7 @@ static void post_test_mode(void);
 static void post_input_cb(uint16_t flags, uint16_t edges);
 static bool post_flash_cb(void* ud);
 
-sched_task_t flash_task = {.t = 1000,
+const sched_task_t flash_task = {.t = 1000,
                            .cb = post_flash_cb,
                            .udata = NULL};
 bool flash_toggle;
