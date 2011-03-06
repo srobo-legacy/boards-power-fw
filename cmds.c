@@ -19,11 +19,13 @@
 #include "leds.h"
 #include "note.h"
 #include "piezo.h"
+#include "power.h"
 #include "flash430/sric-flash.h"
 
 uint8_t sric_enable_input_notes(const sric_if_t *iface);
 uint8_t sric_play_piezo(const sric_if_t *iface);
 uint8_t sric_set_leds(const sric_if_t *iface);
+uint8_t sric_motor_rail(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_ver},
@@ -34,6 +36,7 @@ const sric_cmd_t sric_commands[] = {
 	{sric_enable_input_notes},
 	{sric_play_piezo},
 	{sric_set_leds},
+	{sric_motor_rail},
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
@@ -99,5 +102,19 @@ sric_set_leds(const sric_if_t *iface)
 	uled_set(0, leds & 1);
 	uled_set(1, leds & 2);
 	uled_set(2, leds & 4);
+	return 0;
+}
+
+/* Receives a single byte: bit 0 controls the motor rail */
+uint8_t sric_motor_rail(const sric_if_t *iface)
+{
+	if (iface->rxbuf[SRIC_LEN] != 2)
+		return 0;
+
+	if (iface->rxbuf[SRIC_DATA+1])
+		power_motor_enable(POWER_MOTOR_CODE);
+	else
+		power_motor_disable(POWER_MOTOR_CODE);
+
 	return 0;
 }
