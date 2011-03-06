@@ -45,6 +45,7 @@ uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
+#define BATTERY_NORMAL_VOLTAGE 3277 /* 12V */
 #define BATTERY_FLAT_VOLTAGE 2594 /* 9.5V */
 #define BATTERY_VFLAT_VOLTAGE 1911 /* 7V */
 
@@ -202,6 +203,12 @@ bool monitor_check(void *ud) {
 		 * However keep the BeagleBoard and LCD powered. */
 		power_motor_disable();
 		batt_flat = true;
+	}
+
+	if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE && !charger_present) {
+		power_motor_enable();
+		batt_flat = false;
+		chrg_set(0);
 	}
 
 	if (batt_flat && !charger_present) {
