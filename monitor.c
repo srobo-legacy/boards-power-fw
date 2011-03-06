@@ -121,6 +121,9 @@ void monitor_init(void) {
 	P2IE  |=  CDETECT;
 
 	sched_add(&check_task);
+	/* Simulate a charger plug/unplug event to get the code
+	 * into the correct state */
+	monitor_cdetect_cb(0);
 }
 
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
@@ -140,8 +143,10 @@ void monitor_cdetect_cb(uint16_t flags) {
 bool monitor_cdetect_task_cb(void *ud) {
 	if (P2IN & CDETECT) {
 		SET_CDETECT_EDGE(IO_IESPIN_FALLING);
+		power_motor_enable(POWER_MOTOR_CHARGER);
 	} else {
 		SET_CDETECT_EDGE(IO_IESPIN_RISING);
+		power_motor_disable(POWER_MOTOR_CHARGER);
 	}
 	monitor_check(NULL);
 	cdetect_waiting = false;
