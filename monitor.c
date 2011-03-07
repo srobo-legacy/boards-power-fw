@@ -176,11 +176,11 @@ bool monitor_check(void *ud) {
 
 	if (charger_present == true && charger_present_tmp == false) {
 		/* Charger removed */
-		piezo_play(ch_out, 2, false);
+		/*piezo_play(ch_out, 2, false);*/
 		chrg_set(0);
 	} else if (charger_present == false && charger_present_tmp == true) {
 		/* Charger plugged in */
-		piezo_play(ch_in, 2, false);
+		/*piezo_play(ch_in, 2, false);*/
 		chrg_set(1);
 	}
 
