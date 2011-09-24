@@ -41,7 +41,7 @@ flash: power-bottom
 	mspdebug uif -j -d ${UIF_TTY} -n "prog $<"
 
 clean:
-	-rm -f power-{bottom-top} power.map depend *.o
+	-rm -f power-{bottom,top} power.map depend *.o
 	for d in ${SUBDIRS} ; do\
 		${MAKE} -C $$d clean ; \
 	done ;
