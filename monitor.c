@@ -128,7 +128,7 @@ void monitor_init(void) {
 
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
 piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
-piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=3}};
+piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};
 
 static sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
 static bool cdetect_waiting = false;
@@ -199,7 +199,12 @@ bool monitor_check(void *ud) {
 		power_motor_disable(POWER_MOTOR_CHARGER);
 		power_bl_disable();
 		power_bb_disable();
-		while(1); /* Battery flat */
+		piezo_play(batt_flat_tune, 1, false);
+		dint();
+		while(1) {
+			/* Prod WDT */
+			WDTCTL = WDTCNTCL | WDTPW;
+		}
 	}
 
 	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE) {
