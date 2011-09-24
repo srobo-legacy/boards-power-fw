@@ -45,9 +45,9 @@ uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
-#define BATTERY_NORMAL_VOLTAGE 3277 /* 12V */
-#define BATTERY_FLAT_VOLTAGE 2594 /* 9.5V */
-#define BATTERY_VFLAT_VOLTAGE 1911 /* 7V */
+#define BATTERY_NORMAL_VOLTAGE 3031 /* 11.1V */
+#define BATTERY_FLAT_VOLTAGE 2567 /* 9.4V */
+#define BATTERY_VFLAT_VOLTAGE 2512 /* 9.2V */
 
 void monitor_cdetect_cb(uint16_t flags);
 bool monitor_cdetect_task_cb(void* ud);
