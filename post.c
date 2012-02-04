@@ -56,6 +56,7 @@ bool post(void) {
 		post_test_mode();
 
 	piezo_beep();
+	piezo_beep();
 	return true;
 }
 
