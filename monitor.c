@@ -126,6 +126,14 @@ void monitor_init(void) {
 	monitor_cdetect_cb(0);
 }
 
+uint16_t monitor_get_voltage(void) {
+	return batt_voltage;
+}
+
+uint16_t monitor_get_current(void) {
+	return batt_current;
+}
+
 piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
 piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
 piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};

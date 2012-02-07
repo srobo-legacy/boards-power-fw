@@ -20,6 +20,7 @@
 #include "note.h"
 #include "piezo.h"
 #include "power.h"
+#include "monitor.h"
 #include "flash430/sric-flash.h"
 
 uint8_t sric_enable_input_notes(const sric_if_t *iface);
@@ -27,6 +28,7 @@ uint8_t sric_play_piezo(const sric_if_t *iface);
 uint8_t sric_set_leds(const sric_if_t *iface);
 uint8_t sric_motor_rail(const sric_if_t *iface);
 uint8_t sric_get_leds(const sric_if_t *iface);
+uint8_t sric_get_vi(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_ver},
@@ -38,7 +40,8 @@ const sric_cmd_t sric_commands[] = {
 	{sric_play_piezo},
 	{sric_set_leds},
 	{sric_motor_rail},
-	{sric_get_leds}
+	{sric_get_leds},
+	{sric_get_vi},
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
@@ -138,4 +141,24 @@ sric_get_leds(const sric_if_t *iface)
 
 	iface->txbuf[SRIC_DATA] = resp;
 	return 1;
+}
+
+/* Takes no input, responds with 4 bytes as follows:
+ *   voltage_lsb - Battery voltage, least significant byte
+ *   voltage_msb - Battery voltage, most significant byte
+ *   current_lsb - Battery current, least significant byte
+ *   current_msb - Battery current, most significant byte */
+uint8_t
+sric_get_vi(const sric_if_t *iface)
+{
+	uint16_t v, i;
+	v = monitor_get_voltage();
+	i = monitor_get_current();
+
+	iface->txbuf[SRIC_DATA+0] = v & 0xff;
+	iface->txbuf[SRIC_DATA+1] = (v >> 8);
+	iface->txbuf[SRIC_DATA+2] = i & 0xff;
+	iface->txbuf[SRIC_DATA+3] = (i >> 8);
+
+	return 4;
 }

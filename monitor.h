@@ -21,4 +21,12 @@
 
 void monitor_init(void);
 
+/* Return the instantaneous battery voltage.
+ * Multiply by 0.0036621 to get the value in volts. */
+uint16_t monitor_get_voltage(void);
+
+/* Return the instantaneous current being drawn from the battery.
+ * Multiply by 0.012201 to get the value in amps. */
+uint16_t monitor_get_current(void);
+
 #endif /* __MONITOR_H */
