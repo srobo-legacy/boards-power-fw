@@ -25,6 +25,8 @@
 #include "leds.h"
 #include "power.h"
 
+#define MAX(X,Y) ((X) < (Y) ? (Y) : (X))
+
 #define ISENSE (1<<0)
 #define VSENSE (1<<1)
 #define VPUMP  (1<<2)
@@ -35,7 +37,7 @@
                                  else P2IES &= ~CDETECT; } while(0)
 
 uint16_t batt_voltage=0;
-int16_t batt_current=0;
+uint16_t batt_current=0;
 uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
 bool charger_present = false;
@@ -60,13 +62,21 @@ static const pinint_conf_t cdetect_int = {
 
 interrupt (ADC12_VECTOR) adc_isr(void) {
 	uint8_t adc12v_l = ADC12IV;
+	static uint32_t v_sum = BATTERY_NORMAL_VOLTAGE * 256ul;
+	static uint32_t i_sum = 0;
+	int16_t unf_v, unf_i;
 
 	if (adc12v_l == 0x08) {
-		batt_current = ADC12MEM0 - BATT_CURRENT_OFFSET;
-		batt_voltage = ADC12MEM1;
+		unf_i = ADC12MEM0 - BATT_CURRENT_OFFSET;
+		unf_v = ADC12MEM1;
 		pump_voltage = ADC12MEM2;
 		motor_voltage = ADC12MEM3;
 		ADC12IFG &= ~0x02;
+
+		batt_voltage = v_sum/256;
+		v_sum = v_sum + unf_v - batt_voltage;
+		batt_current = i_sum/256;
+		i_sum = i_sum + MAX(0, unf_i) - batt_current;
 	} else {
 		ADC12IFG = 0;
 	}
