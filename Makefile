@@ -2,6 +2,8 @@ ARCH = msp430x167
 CC := msp430-gcc
 UIF_TTY = /dev/ttyUSB0
 
+FW_VER = 1
+
 CFLAGS := -g -mmcu=${ARCH} -Wall -Werror -O3 -std=gnu99
 CFLAGS += -include `pwd`/config.h
 LDFLAGS := -Wl,-Map=power.map
@@ -24,7 +26,7 @@ power-top: ${O_FILES} ${SUBDIRS}
 	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS} -Wl,-T,flash430/lkr/${ARCH}-top.x
 
 drivers flash430:
-	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" FW_VER="${FW_VER}"
 
 libsric:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS} -I`pwd`" LDFLAGS="${LDFLAGS}"
