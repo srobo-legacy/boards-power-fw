@@ -42,8 +42,6 @@ uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
 bool charger_present = false;
 bool batt_flat = false;
-/* Used to calculate a moving average over 4 samples */
-uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
 #define BATT_CURRENT_OFFSET 683
 #define CHARGER_PRESENT_VOLTAGE 3741 /* 13.7V */
@@ -206,11 +204,6 @@ bool monitor_check(void *ud) {
 
 
 	/* --- VOLTAGE RAIL MONITORING --- */
-	uint16_t batt_voltage_ma = batt_voltage_ma_sum/4;
-	/* Only update the moving average when the charger isn't plugged in */
-	if (!charger_present)
-		batt_voltage_ma_sum = batt_voltage_ma_sum
-		                      + batt_voltage - batt_voltage_ma;
 
 	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
@@ -225,7 +218,7 @@ bool monitor_check(void *ud) {
 		}
 	}
 
-	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE) {
+	if (batt_voltage < BATTERY_FLAT_VOLTAGE) {
 		/* The battery is pretty much flat, turn off the motor rail.
 		 * However keep the BeagleBoard and LCD powered. */
 		power_motor_disable(POWER_MOTOR_CHARGER);
@@ -240,7 +233,7 @@ bool monitor_check(void *ud) {
 			i=0;
 		}
 		/* The battery has been recharged to a suitable level */
-		if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE) {
+		if (batt_voltage > BATTERY_NORMAL_VOLTAGE) {
 			power_motor_enable(POWER_MOTOR_CHARGER);
 			batt_flat = false;
 			chrg_set(0);
