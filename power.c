@@ -24,8 +24,6 @@
 #define BB_EN_PIN    (1<<2)
 #define BB_REGEN_PIN (1<<5)
 
-uint8_t power_motor_gate = 0;
-
 void power_init(void) {
 	P5OUT &= ~(MOTOR_EN_PIN | BL_EN_PIN);
 	if (power_bb_status())
@@ -42,13 +40,10 @@ void power_bl_disable(void) {
 	P5OUT &= ~BL_EN_PIN;
 }
 
-void power_motor_enable(uint8_t event) {
-	power_motor_gate |= event;
-	if (power_motor_gate == 0x03)
-		P5OUT |= MOTOR_EN_PIN;
+void power_motor_enable(void) {
+	P5OUT |= MOTOR_EN_PIN;
 }
-void power_motor_disable(uint8_t event) {
-	power_motor_gate &= ~event;
+void power_motor_disable(void) {
 	P5OUT &= ~MOTOR_EN_PIN;
 }
 

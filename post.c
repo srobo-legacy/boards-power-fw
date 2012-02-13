@@ -115,10 +115,10 @@ static bool post_flash_cb(void* ud) {
 
 	if (flash_toggle) {
 		flash_toggle = false;
-		power_motor_enable(POWER_MOTOR_CODE);
+		power_motor_enable();
 	} else {
 		flash_toggle = true;
-		power_motor_disable(POWER_MOTOR_CODE);
+		power_motor_disable();
 	}
 
 	return true;

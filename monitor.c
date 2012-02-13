@@ -118,7 +118,7 @@ bool monitor_check(void *ud) {
 
 	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
-		power_motor_disable(POWER_MOTOR_CHARGER);
+		power_motor_disable();
 		power_bl_disable();
 		power_bb_disable();
 		piezo_play(batt_flat_tune, 1, false);
@@ -137,7 +137,7 @@ bool monitor_check(void *ud) {
 	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE && batt_flat == BATT_OK) {
 		/* The battery is pretty much flat, turn off the motor rail.
 		 * However keep the BeagleBoard and LCD powered. */
-		power_motor_disable(POWER_MOTOR_CHARGER);
+		power_motor_disable();
 		batt_flat = 0;
 	}
 

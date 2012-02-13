@@ -21,11 +21,6 @@
 
 #include <stdbool.h>
 
-/* Passed to the power_motor_* functions to ensure the motor rail is
- * only tuned on when both code is running and the charger is unplugged */
-#define POWER_MOTOR_CODE 1
-#define POWER_MOTOR_CHARGER 2
-
 void power_init(void);
 
 /* Turn on/off LCD backlight SMPS */
@@ -33,8 +28,8 @@ void power_bl_enable(void);
 void power_bl_disable(void);
 
 /* Turn on/off the 'motor rail' */
-void power_motor_enable(uint8_t);
-void power_motor_disable(uint8_t);
+void power_motor_enable(void);
+void power_motor_disable(void);
 
 /* Turn on/off the BeagleBoard (+ USB) 5V rail */
 void power_bb_enable(void);

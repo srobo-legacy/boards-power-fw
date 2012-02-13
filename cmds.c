@@ -117,9 +117,9 @@ uint8_t sric_motor_rail(const sric_if_t *iface)
 		return 0;
 
 	if (iface->rxbuf[SRIC_DATA+1])
-		power_motor_enable(POWER_MOTOR_CODE);
+		power_motor_enable();
 	else
-		power_motor_disable(POWER_MOTOR_CODE);
+		power_motor_disable();
 
 	return 0;
 }
