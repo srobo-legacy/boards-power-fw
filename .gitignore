@@ -3,3 +3,4 @@ power-top
 power.map
 *.o
 depend
+ram-usage.txt

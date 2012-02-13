@@ -1,5 +1,7 @@
 ARCH = msp430x167
 CC := msp430-gcc
+NM := msp430-nm
+SIZE := msp430-size
 UIF_TTY = /dev/ttyUSB0
 
 CFLAGS := -g -mmcu=${ARCH} -Wall -Werror -O3 -std=gnu99
@@ -13,7 +15,7 @@ LDFLAGS += -Ldrivers -ldrivers
 LDFLAGS += -Llibsric -lsric
 LDFLAGS += -Lflash430 -lflash430
 
-all: power-bottom power-top
+all: power-bottom power-top ram-usage.txt size
 
 include depend
 
@@ -35,7 +37,13 @@ depend: *.c
 		${CC} ${CFLAGS} -MM $$file -o - >> $@ ; \
 	done ;
 
-.PHONY: clean ${SUBDIRS} flash
+ram-usage.txt: power-bottom
+	${NM} -nS $^ | grep " [dDbB] " > $@
+
+.PHONY: clean ${SUBDIRS} flash size
+
+size: power-bottom
+	${SIZE} $^
 
 flash: power-bottom
 	mspdebug uif -j -d ${UIF_TTY} -n "prog $<"
