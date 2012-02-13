@@ -38,8 +38,6 @@ uint16_t batt_voltage=0;
 int16_t batt_current=0;
 uint16_t motor_voltage=0;
 uint16_t pump_voltage=0;
-bool charger_present = false;
-bool batt_flat = false;
 /* Used to calculate a moving average over 4 samples */
 uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 
@@ -49,14 +47,9 @@ uint16_t batt_voltage_ma_sum = 13107; /* 12V * 4 */
 #define BATTERY_FLAT_VOLTAGE 2785 /* 10.2V */
 #define BATTERY_VFLAT_VOLTAGE 2730 /* 10V */
 
-void monitor_cdetect_cb(uint16_t flags);
-bool monitor_cdetect_task_cb(void* ud);
-bool monitor_check(void* ud);
+#define BATT_OK 0xff
 
-static const pinint_conf_t cdetect_int = {
-	.mask = CDETECT << 8,
-	.int_cb = monitor_cdetect_cb,
-};
+bool monitor_check(void* ud);
 
 interrupt (ADC12_VECTOR) adc_isr(void) {
 	uint8_t adc12v_l = ADC12IV;
@@ -112,87 +105,16 @@ void monitor_init(void) {
 	ADC12CTL0 |= ENC;
 	ADC12CTL0 |= ADC12SC;
 
-	/* Init charger detection stuff */
-	pinint_add( &cdetect_int );
-	P2DIR &= ~CDETECT;
-	P2SEL &= ~CDETECT;
-	SET_CDETECT_EDGE(IO_IESPIN_FALLING);
-	P2IFG &= ~CDETECT;
-	P2IE  |=  CDETECT;
-
 	sched_add(&check_task);
-	/* Simulate a charger plug/unplug event to get the code
-	 * into the correct state */
-	monitor_cdetect_cb(0);
 }
 
-piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
-piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
 piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};
 
-static const sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
-static bool cdetect_waiting = false;
-
-void monitor_cdetect_cb(uint16_t flags) {
-	if (!cdetect_waiting) {
-		cdetect_waiting = true;
-		sched_add(&cdetect_task);
-	}
-}
-
-bool monitor_cdetect_task_cb(void *ud) {
-	if (P2IN & CDETECT) {
-		SET_CDETECT_EDGE(IO_IESPIN_FALLING);
-		power_motor_enable(POWER_MOTOR_CHARGER);
-	} else {
-		SET_CDETECT_EDGE(IO_IESPIN_RISING);
-		power_motor_disable(POWER_MOTOR_CHARGER);
-	}
-	monitor_check(NULL);
-	cdetect_waiting = false;
-	return false;
-}
-
 bool monitor_check(void *ud) {
-	/* --- CHARGER DETECTION --- */
-
-	bool charger_present_tmp;
-
-	if (P2IN & CDETECT) {
-		/* No charger plugged in, cannot be charging no matter what
-		 * other measurement say */
-		charger_present_tmp = false;
-	} else if (batt_current < 0 ||
-	    (batt_current < 20 && batt_voltage > CHARGER_PRESENT_VOLTAGE)) {
-		/* Definitely charging as the current is negative or the
-		 * current isn't negative but the voltage indicates
-		 * that the charge is still connected and switched on */
-		charger_present_tmp = true;
-	} else {
-		/* Current is positive and the voltage is low, running
-		 * on the battery and not charging */
-		charger_present_tmp = false;
-	}
-
-	if (charger_present == true && charger_present_tmp == false) {
-		/* Charger removed */
-		/*piezo_play(ch_out, 2, false);*/
-		chrg_set(0);
-	} else if (charger_present == false && charger_present_tmp == true) {
-		/* Charger plugged in */
-		/*piezo_play(ch_in, 2, false);*/
-		chrg_set(1);
-	}
-
-	charger_present = charger_present_tmp;
-
-
 	/* --- VOLTAGE RAIL MONITORING --- */
 	uint16_t batt_voltage_ma = batt_voltage_ma_sum/4;
-	/* Only update the moving average when the charger isn't plugged in */
-	if (!charger_present)
-		batt_voltage_ma_sum = batt_voltage_ma_sum
-		                      + batt_voltage - batt_voltage_ma;
+	batt_voltage_ma_sum = batt_voltage_ma_sum
+	                      + batt_voltage - batt_voltage_ma;
 
 	if (batt_voltage < BATTERY_VFLAT_VOLTAGE) {
 		/* Perform emergency shutdown */
@@ -207,25 +129,23 @@ bool monitor_check(void *ud) {
 		}
 	}
 
-	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE) {
+	/* Flag used to indicate if the battery is flat. Once set the board
+	 * will beep until powered off. This is also used as a counting
+	 * variable so limit the beep rate while still flashing the LED */
+	static uint8_t batt_flat = BATT_OK;
+
+	if (batt_voltage_ma < BATTERY_FLAT_VOLTAGE && batt_flat == BATT_OK) {
 		/* The battery is pretty much flat, turn off the motor rail.
 		 * However keep the BeagleBoard and LCD powered. */
 		power_motor_disable(POWER_MOTOR_CHARGER);
-		batt_flat = true;
+		batt_flat = 0;
 	}
 
-	if (batt_flat && !charger_present) {
-		static uint8_t i = 3;
+	if (batt_flat != BATT_OK) {
 		chrg_toggle();
-		if (i++ == 3) {
+		if (batt_flat++ == 3) {
 			piezo_play(batt_flat_tune, 1, false);
-			i=0;
-		}
-		/* The battery has been recharged to a suitable level */
-		if (batt_voltage_ma > BATTERY_NORMAL_VOLTAGE) {
-			power_motor_enable(POWER_MOTOR_CHARGER);
-			batt_flat = false;
-			chrg_set(0);
+			batt_flat=0;
 		}
 	}
 
