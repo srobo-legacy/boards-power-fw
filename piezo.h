@@ -40,7 +40,7 @@ void piezo_init(void);
 /* Copy 'tune' into the internal playback buffer and begin playing.
  * Set 'notif' to true to enable notifications through the global
  * notification callback when the buffer is getting empty. */
-void piezo_play(piezo_note_t tune[], uint8_t len, bool notif);
+void piezo_play(const piezo_note_t tune[], uint8_t len, bool notif);
 
 /* Provides an easy way of making a 'beep' noise. */
 void piezo_beep(void);

@@ -58,7 +58,7 @@ void piezo_init(void) {
 	TACCR1 = 10;
 }
 
-void piezo_play(piezo_note_t tune[], uint8_t len, bool notif) {
+void piezo_play(const piezo_note_t tune[], uint8_t len, bool notif) {
 	if (notif)
 		requires_notif = true;
 

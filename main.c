@@ -43,8 +43,8 @@ void run(void);
 
 volatile bool run_flag;
 
-piezo_config_t piezo_config = {
-	.buf_low = NULL,
+const piezo_config_t piezo_config = {
+	.buf_low = piezo_send_piezo_note,
 };
 
 input_conf_t input_conf = {
@@ -165,7 +165,9 @@ void init_sric(void) {
 
 	/* Configure callbacks that issue notifications */
 	input_conf.inp_cb = note_recv_input;
-	piezo_config.buf_low = piezo_send_piezo_note;
+	/* The piezo callback is set when the piezo_config variable is defined,
+	 * so that it can be const to save space
+	piezo_config.buf_low = piezo_send_piezo_note; */
 
 	eint();
 }
@@ -208,7 +210,7 @@ void run(void) {
 
 bool run_cb(void* ud) {
 	/* REMOVE BEFORE SHIPPING */
-	power_motor_enable(POWER_MOTOR_CODE);
+	power_motor_enable();
 	power_bb_enable();
 	power_bl_enable();
 
