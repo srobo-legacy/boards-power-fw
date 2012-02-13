@@ -108,7 +108,7 @@ void monitor_init(void) {
 	sched_add(&check_task);
 }
 
-piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};
+const piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};
 
 bool monitor_check(void *ud) {
 	/* --- VOLTAGE RAIL MONITORING --- */

@@ -38,7 +38,7 @@ const sched_task_t flash_task = {.t = 1000,
                            .udata = NULL};
 bool flash_toggle;
 
-static piezo_note_t enter_test_mode[] = {
+static const piezo_note_t enter_test_mode[] = {
 	{.f=100,  .d=100, .v=2},
 	{.f=200,  .d=200, .v=2},
 	{.f=500,  .d=300, .v=2},
