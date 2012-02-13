@@ -172,22 +172,6 @@ void init_sric(void) {
 	eint();
 }
 
-/* This function is run before initialisation of the stack pointer and aids in
- * measuring stack usage by filling it with a known value. */
-void stack_clear(void) __attribute__ ((naked))
-                       __attribute__ ((section (".init1")));
-
-extern uint8_t _end;
-extern uint8_t __stack;
-
-void stack_clear(void) {
-	uint8_t *p = &_end;
-	while (p <= &__stack) {
-		*p = 0x5c;
-		p++;
-	}
-}
-
 int main(void) {
 	/* Enable watchdog timer */
 	WDTCTL = WDTPW;
