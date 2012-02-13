@@ -73,7 +73,7 @@ interrupt (ADC12_VECTOR) adc_isr(void) {
 }
 
 /* Check the state of the voltage rails and charger ever second */
-static sched_task_t check_task = {.cb=monitor_check, .t=1000};
+static const sched_task_t check_task = {.cb=monitor_check, .t=1000};
 
 void monitor_init(void) {
 	/* Init ADC stuff */
@@ -130,7 +130,7 @@ piezo_note_t ch_in[]  = {{.f=600, .d=200, .v=3}, {.f=800, .d=200, .v=3}};
 piezo_note_t ch_out[] = {{.f=800, .d=200, .v=3}, {.f=600, .d=200, .v=3}};
 piezo_note_t batt_flat_tune[] = {{.f=1000, .d=800, .v=5}};
 
-static sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
+static const sched_task_t cdetect_task = {.cb=monitor_cdetect_task_cb, .t=200};
 static bool cdetect_waiting = false;
 
 void monitor_cdetect_cb(uint16_t flags) {
