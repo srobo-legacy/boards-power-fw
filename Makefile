@@ -4,7 +4,7 @@ NM := msp430-nm
 SIZE := msp430-size
 UIF_TTY = /dev/ttyUSB0
 
-FW_VER = 2
+FW_VER = 3
 
 CFLAGS := -g -mmcu=${ARCH} -Wall -Werror -O3 -std=gnu99 -fshort-enums
 CFLAGS += -include `pwd`/config.h
