@@ -38,6 +38,7 @@
 
 #define reset_wdt() do { WDTCTL = WDTCNTCL | WDTPW; } while(0)
 
+void flash_led_cb(bool state);
 bool run_cb(void* ud);
 void run(void);
 
@@ -135,6 +136,10 @@ const sric_client_conf_t sric_client_conf = {
 	.devclass = SRIC_CLASS_POWER,
 };
 
+const sric_flash_conf_t sric_flash_conf = {
+	.led_control = flash_led_cb,
+};
+
 void init_board(void) {
 	leds_init();
 
@@ -214,4 +219,8 @@ bool run_cb(void* ud) {
 
 	run_flag = true;
 	return false;
+}
+
+void flash_led_cb(bool state) {
+	dbg_set(state);
 }
